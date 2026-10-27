@@ -1,0 +1,3118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Innomick Technologies - Contract Management System (CMS)</title>
+  <meta name="description" content="Innomick Technologies Enterprise Contract Management System (CMS) Prototype powered by modern SharePoint architecture.">
+  <link rel="icon" type="image/png" href="assets/innomick_logo_square.png">
+  <link rel="stylesheet" href="cms_style.css">
+  <link rel="stylesheet" href="cms_newcontract.css">
+  <link rel="stylesheet" href="cms_contractdetail.css">
+  <link rel="stylesheet" href="cms_ui.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       1. MICROSOFT 365 GLOBAL TOP BAR
+       ========================================================================= -->
+  <header class="m365-topbar">
+    <div class="topbar-left">
+      <button class="waffle-btn" id="m365AppLauncher" title="App launcher" onclick="spToggleLauncher(event)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="5" r="2.2"/>
+          <circle cx="12" cy="5" r="2.2"/>
+          <circle cx="19" cy="5" r="2.2"/>
+          <circle cx="5" cy="12" r="2.2"/>
+          <circle cx="12" cy="12" r="2.2"/>
+          <circle cx="19" cy="12" r="2.2"/>
+          <circle cx="5" cy="19" r="2.2"/>
+          <circle cx="12" cy="19" r="2.2"/>
+          <circle cx="19" cy="19" r="2.2"/>
+        </svg>
+      </button>
+      <span class="m365-tenant-title">Innomick Technologies</span>
+    </div>
+
+    <div class="topbar-center">
+      <div class="global-search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="globalSearchInput" placeholder="Search this site" oninput="handleGlobalSearch(this.value)">
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="topbar-icon-btn" title="Next steps to improve your site">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+      <button class="topbar-icon-btn" title="Provide feedback to Microsoft" onclick="spOpenPanel('feedback')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="5" r="3"/>
+          <line x1="12" y1="8" x2="12" y2="14"/>
+          <circle cx="6" cy="19" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="12" y1="14" x2="6" y2="16"/>
+          <line x1="12" y1="14" x2="18" y2="16"/>
+        </svg>
+      </button>
+      <button class="topbar-icon-btn" title="Settings" onclick="spOpenPanel('settings')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+      <button class="topbar-icon-btn" title="Help" onclick="spOpenPanel('help')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <div style="position: relative;">
+        <button class="user-profile-btn" id="userProfileBtn" title="Arjun Mehta (Click to switch user)" onclick="spToggleAccount(event)">
+          <div class="avatar-circle" id="topbarUserAvatar">MA</div>
+        </button>
+        <div class="user-profile-menu" id="userProfileMenu">
+          <div class="profile-menu-header">
+            <h4 id="activeProfileName">Arjun Mehta</h4>
+            <p id="activeProfileEmail">arjun.mehta@innomicktechnologies.com</p>
+          </div>
+          <div class="profile-menu-item active" id="profileItemArjun" onclick="switchUserProfile('arjun')">
+            <div class="profile-menu-avatar" style="background:#008272;">MA</div>
+            <div class="profile-menu-info">
+              <div class="profile-menu-name">Arjun Mehta</div>
+              <div class="profile-menu-sub">Medical & Corporate Approver</div>
+            </div>
+            <span class="profile-menu-badge">88 Pending</span>
+          </div>
+          <div class="profile-menu-item" id="profileItemSara" onclick="switchUserProfile('sara')">
+            <div class="profile-menu-avatar" style="background:#0284c7;">MW</div>
+            <div class="profile-menu-info">
+              <div class="profile-menu-name">Sara Thomas</div>
+              <div class="profile-menu-sub">Enterprise IT Contract Head</div>
+            </div>
+            <span class="profile-menu-badge">115 Pending</span>
+          </div>
+          <div class="profile-menu-item" id="profileItemImran" onclick="switchUserProfile('imran')">
+            <div class="profile-menu-avatar" style="background:#7c3aed;">IH</div>
+            <div class="profile-menu-info">
+              <div class="profile-menu-name">Imran Hussain</div>
+              <div class="profile-menu-sub">Lead Cloud Solutions Consultant</div>
+            </div>
+            <span class="profile-menu-badge">42 Pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sp-popover sp-launcher" id="spAppLauncher"></div>
+  <div class="sp-popover sp-account" id="spAccountCard"></div>
+  <aside class="sp-side-panel" id="spSidePanel">
+    <button class="sp-panel-close" onclick="spClosePanel()" title="Close">&times;</button>
+    <div id="spSidePanelBody"></div>
+  </aside>
+
+  <!-- =========================================================================
+       2. CMS SITE HEADER (SharePoint Sub-header)
+       ========================================================================= -->
+  <div class="cms-site-header">
+    <div class="site-identity-group">
+      <img src="assets/innomick_logo_horizontal.png" alt="Innomick Technologies" class="innomick-cms-logo">
+      <div class="site-title-container">
+        <h2 class="site-title">Contract Management System</h2>
+      </div>
+    </div>
+
+    <div class="site-actions-group">
+      <span class="private-group-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Private group
+      </span>
+
+      <button class="favorite-btn favorited" id="favoriteToggleBtn" onclick="toggleFavorite()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="#008272" stroke="#008272" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span id="favoriteBtnText">Added to favorites</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       3. CMS SHELL (Teal Sidebar + Main Content Viewport)
+       ========================================================================= -->
+  <div class="cms-shell-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="cms-sidebar">
+      <ul class="cms-nav-list">
+        <li class="cms-nav-item" id="nav-statistics">
+          <a href="#statistics" class="cms-nav-link" onclick="switchRoute('statistics')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </span>
+            <span>Statistics</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-requests">
+          <a href="#requests" class="cms-nav-link" onclick="switchRoute('requests')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              </svg>
+            </span>
+            <span>Requests</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-contracts">
+          <a href="#contracts" class="cms-nav-link" onclick="switchRoute('contracts')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </span>
+            <span>Contracts</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-approvals">
+          <a href="#approvals" class="cms-nav-link" onclick="switchRoute('approvals')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </span>
+            <span>Approvals</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-templates">
+          <a href="#templates" class="cms-nav-link" onclick="switchRoute('templates')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </span>
+            <span>Templates</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-notifications">
+          <a href="#notifications" class="cms-nav-link" onclick="switchRoute('notifications')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </span>
+            <span>Notifications</span>
+            <span class="cms-nav-badge notif-badge" id="sidebarNotifBadge" style="background: rgba(255,255,255,0.25); color: #fff; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: auto;">88</span>
+          </a>
+        </li>
+
+        <li class="cms-nav-item" id="nav-import">
+          <a href="#import" class="cms-nav-link" onclick="switchRoute('import')">
+            <span class="cms-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </span>
+            <span>Contract Import</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="cms-sidebar-footer">
+        <div><strong>Innomick Tech CMS</strong></div>
+        <div>v2.4 Enterprise Edition</div>
+        <div style="margin-top: 4px; color: rgba(255,255,255,0.6)">Confidential & Sanitized</div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport (Dynamically Switched by Route) -->
+    <main class="cms-content-viewport" id="cmsMainContainer">
+
+      <!-- ===================================================================
+           VIEW 1: STATISTICS DASHBOARD (#statistics)
+           =================================================================== -->
+      <!-- ===================================================================
+           VIEW 1: STATISTICS DASHBOARD (#statistics - Matching Screenshots 01-04)
+           =================================================================== -->
+      <section id="view-statistics" class="cms-view-section">
+        
+        <!-- Header Row: Title, Subtitle & Refresh Button -->
+        <div class="stats-page-header">
+          <div class="stats-header-titles">
+            <h1 class="stats-main-title">Statistics</h1>
+            <p class="stats-subtitle">Monitor your contracts, approvals, and compliance status.</p>
+          </div>
+          <button class="btn-stats-refresh" id="dashboardRefreshBtn" onclick="refreshDashboardData()" title="Refresh Dashboard">
+            <svg class="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <!-- Tabs: Overview | Contract Value -->
+        <div class="stats-tabs-row">
+          <button class="stats-tab-link active" id="statsTabOverview" onclick="switchStatsTab('overview')">Overview</button>
+          <button class="stats-tab-link" id="statsTabContractValue" onclick="switchStatsTab('value')">Contract Value</button>
+        </div>
+
+        <!-- Overview Tab Container -->
+        <div id="statsOverviewContainer">
+
+          <!-- Filter Bar Matching Screenshot 01 -->
+          <div class="stats-filter-bar">
+            <div class="stats-filter-label-group">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span>FILTERS</span>
+            </div>
+
+            <div class="stats-filter-item">
+              <span class="filter-field-label">Branch</span>
+              <div class="custom-select-wrapper">
+                <select id="statsFilterBranch" class="stats-select" onchange="filterDashboardData()">
+                  <option value="all">All Branches</option>
+                  <option value="Innomick" selected>Innomick</option>
+                  <option value="Innomick Kuwait">Innomick Kuwait</option>
+                  <option value="Innomick Dubai">Innomick Dubai</option>
+                  <option value="Innomick Riyadh">Innomick Riyadh</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="stats-filter-item">
+              <span class="filter-field-label">Department</span>
+              <div class="custom-select-wrapper">
+                <select id="statsFilterDept" class="stats-select" onchange="filterDashboardData()">
+                  <option value="all" selected>All Departments</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Medical Insurance">Medical Insurance</option>
+                  <option value="Facilities Management">Facilities Management</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 4 KPI Summary Cards (Screenshot 01) -->
+          <div class="stats-kpi-grid">
+            <!-- KPI 1: Pending Approvals -->
+            <div class="stats-kpi-card kpi-pending">
+              <div class="kpi-card-header">
+                <span class="kpi-card-title">PENDING APPROVALS</span>
+                <div class="kpi-circle-icon pending-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-number" id="kpiPendingCount">115</div>
+              <div class="kpi-card-subtitle">Awaiting review</div>
+            </div>
+
+            <!-- KPI 2: Expiring Soon -->
+            <div class="stats-kpi-card kpi-expiring">
+              <div class="kpi-card-header">
+                <span class="kpi-card-title">EXPIRING SOON</span>
+                <div class="kpi-circle-icon alert-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-number" id="kpiExpiringCount">0</div>
+              <div class="kpi-card-subtitle">Within notice period</div>
+            </div>
+
+            <!-- KPI 3: Stuck Approvals -->
+            <div class="stats-kpi-card kpi-stuck">
+              <div class="kpi-card-header">
+                <span class="kpi-card-title">STUCK APPROVALS</span>
+                <div class="kpi-circle-icon alert-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-number" id="kpiStuckCount">112</div>
+              <div class="kpi-card-subtitle">Overdue beyond due date</div>
+            </div>
+
+            <!-- KPI 4: Drafts Aging -->
+            <div class="stats-kpi-card kpi-drafts">
+              <div class="kpi-card-header">
+                <span class="kpi-card-title">DRAFTS AGING</span>
+                <div class="kpi-circle-icon drafts-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <circle cx="12" cy="14" r="3"/>
+                    <polyline points="12 12.5 12 14 13.5 14"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-number" id="kpiDraftsCount">13</div>
+              <div class="kpi-card-subtitle">In draft more than 7 days</div>
+            </div>
+          </div>
+
+          <!-- Main 3-Column Section (Screenshots 01 & 02) -->
+          <div class="stats-three-cols-grid">
+            
+            <!-- Column 1: Action Required -->
+            <div class="stats-col-card action-required-container">
+              <div class="stats-card-header dark-navy-header">
+                <div class="header-icon-rounded dark-icon-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+                <div class="header-titles">
+                  <h3 class="header-title-text white-text">Action Required</h3>
+                  <span class="header-sub-text muted-blue-text">Immediate Action Required</span>
+                </div>
+              </div>
+
+              <div class="stats-card-body">
+                <!-- Sub-header: Pending For Your Approvals -->
+                <div class="pending-subcard-header">
+                  <div class="subcard-title-left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span class="subcard-title-text">Pending For Your Approvals</span>
+                  </div>
+                  <span class="subcard-count-badge purple-badge" id="pendingApprovalsSubCount">115</span>
+                </div>
+
+                <!-- Scrollable Pending Approvals List -->
+                <div class="scrollable-items-list" id="pendingApprovalsListContainer">
+                  <!-- Rendered dynamically via JS from InnomickCMSData.pendingApprovalsList -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: Stuck Approvals -->
+            <div class="stats-col-card stuck-approvals-container">
+              <div class="stats-card-header light-pink-header">
+                <div class="header-left-side">
+                  <div class="header-icon-circle red-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  </div>
+                  <div class="header-titles">
+                    <h3 class="header-title-text dark-text">Stuck Approvals</h3>
+                    <span class="header-sub-text grey-text">Overdue beyond due date</span>
+                  </div>
+                </div>
+                <div class="header-count-large red-text" id="stuckApprovalsCount">112</div>
+              </div>
+
+              <div class="stats-card-body">
+                <!-- Scrollable Stuck Approvals List -->
+                <div class="scrollable-items-list" id="stuckApprovalsListContainer">
+                  <!-- Rendered dynamically via JS from InnomickCMSData.stuckApprovalsList -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 3: Pending Execution -->
+            <div class="stats-col-card pending-execution-container">
+              <div class="stats-card-header light-blue-header">
+                <div class="header-left-side">
+                  <div class="header-icon-circle blue-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div class="header-titles">
+                    <h3 class="header-title-text dark-text">Pending Execution</h3>
+                    <span class="header-sub-text grey-text">Approved, awaiting start</span>
+                  </div>
+                </div>
+                <div class="header-count-large blue-text">0</div>
+              </div>
+
+              <div class="stats-card-body centered-empty-body">
+                <div class="no-data-found-msg">No Data Found</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Row 4: Contracts in Notice Period (Screenshot 02) -->
+          <div class="notice-period-banner">
+            <div class="notice-banner-header">
+              <div class="notice-header-left">
+                <div class="header-icon-circle amber-circle">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                </div>
+                <div class="notice-header-text">
+                  <h3 class="notice-title">Contracts in Notice Period</h3>
+                  <span class="notice-sub">Includes contract and policy notices</span>
+                </div>
+              </div>
+              <div class="header-count-large amber-text" id="noticePeriodCount">0</div>
+            </div>
+            <div class="notice-banner-body notice-sub-panels">
+              <div class="notice-sub-panel notice-sub-contract">
+                <div class="notice-sub-panel-head">
+                  <span class="notice-sub-panel-title">Contract Notice Period</span>
+                  <span class="notice-sub-panel-count" id="contractNoticeCount">0</span>
+                </div>
+                <div class="notice-sub-panel-empty">No Data Found</div>
+              </div>
+              <div class="notice-sub-panel notice-sub-policy">
+                <div class="notice-sub-panel-head">
+                  <span class="notice-sub-panel-title">Policy Notice Period (Internal)</span>
+                  <span class="notice-sub-panel-count" id="policyNoticeCount">0</span>
+                </div>
+                <div class="notice-sub-panel-empty">No Data Found</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5: Drafts Aging (Screenshot 03) -->
+          <div class="drafts-aging-section">
+            <div class="drafts-aging-header">
+              <div class="drafts-header-left">
+                <div class="drafts-icon-box amber-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <circle cx="12" cy="14" r="3"/>
+                    <polyline points="12 12.5 12 14 13.5 14"/>
+                  </svg>
+                </div>
+                <div class="drafts-header-titles">
+                  <h3 class="drafts-main-title">Drafts Aging</h3>
+                  <span class="drafts-sub-title">In draft more than 7 days</span>
+                </div>
+              </div>
+              <div class="drafts-count-badge" id="draftsAgingTotalBadge">13</div>
+            </div>
+
+            <div class="drafts-items-container" id="draftsAgingListContainer">
+              <!-- Rendered dynamically via JS from InnomickCMSData.draftsAgingList -->
+            </div>
+          </div>
+
+          <!-- Row 6: Contract Activity Trend (Screenshot 04) -->
+          <div class="trend-section">
+            <div class="trend-header">
+              <div class="trend-icon-box blue-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </div>
+              <div class="trend-header-titles">
+                <h3 class="trend-main-title">Contract Activity Trend</h3>
+                <span class="trend-sub-title">New contracts vs renewals over time</span>
+              </div>
+            </div>
+
+            <div class="trend-chart-viewport">
+              <svg viewBox="0 0 920 230" width="100%" height="230" style="overflow: visible;">
+                <defs>
+                  <!-- Gradient for New Contracts (Navy) -->
+                  <linearGradient id="trendNavyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1e293b" stop-opacity="0.30"/>
+                    <stop offset="60%" stop-color="#1e293b" stop-opacity="0.10"/>
+                    <stop offset="100%" stop-color="#1e293b" stop-opacity="0.0"/>
+                  </linearGradient>
+                  <!-- Gradient for Renewals (Teal) -->
+                  <linearGradient id="trendTealGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#008272" stop-opacity="0.25"/>
+                    <stop offset="60%" stop-color="#008272" stop-opacity="0.08"/>
+                    <stop offset="100%" stop-color="#008272" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Horizontal Grid Lines -->
+                <line x1="50" y1="30" x2="880" y2="30" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="50" y1="80" x2="880" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="50" y1="130" x2="880" y2="130" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="50" y1="180" x2="880" y2="180" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- Y-Axis Labels -->
+                <text x="35" y="34" fill="#94a3b8" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="end">6</text>
+                <text x="35" y="84" fill="#94a3b8" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="end">4</text>
+                <text x="35" y="134" fill="#94a3b8" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="end">2</text>
+                <text x="35" y="184" fill="#94a3b8" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="end">0</text>
+
+                <!-- Area Fill: Renewals (Teal) -->
+                <path d="M 70,135 C 130,135 150,158 190,158 C 240,158 270,105 320,105 C 370,105 400,172 450,172 C 500,172 540,172 580,172 C 640,172 670,172 710,172 C 760,172 800,158 860,158 L 860,180 L 70,180 Z" fill="url(#trendTealGrad)"/>
+
+                <!-- Area Fill: New Contracts (Navy) -->
+                <path d="M 70,180 C 130,180 150,172 190,170 C 250,166 280,165 320,160 C 370,150 400,75 450,75 C 500,75 540,75 580,75 C 640,75 670,75 710,75 C 760,75 800,160 860,170 L 860,180 L 70,180 Z" fill="url(#trendNavyGrad)"/>
+
+                <!-- Curve 1: New Contracts (Dark Navy Line) -->
+                <path d="M 70,180 C 130,180 150,172 190,170 C 250,166 280,165 320,160 C 370,150 400,75 450,75 C 500,75 540,75 580,75 C 640,75 670,75 710,75 C 760,75 800,160 860,170" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linecap="round"/>
+
+                <!-- Curve 2: Renewals (Teal Line) -->
+                <path d="M 70,135 C 130,135 150,158 190,158 C 240,158 270,105 320,105 C 370,105 400,172 450,172 C 500,172 540,172 580,172 C 640,172 670,172 710,172 C 760,172 800,158 860,158" fill="none" stroke="#008272" stroke-width="2.6" stroke-linecap="round"/>
+
+                <!-- X-Axis Labels -->
+                <text x="70" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">May '23</text>
+                <text x="190" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Jan '24</text>
+                <text x="320" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Jan '25</text>
+                <text x="450" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Aug '26</text>
+                <text x="580" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Sep '26</text>
+                <text x="710" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Oct '26</text>
+                <text x="860" y="210" fill="#64748b" font-size="12" font-family="'Segoe UI', sans-serif" text-anchor="middle">Nov '28</text>
+              </svg>
+
+              <!-- Legend Matching Screenshot 04 -->
+              <div class="trend-legend-row">
+                <span class="legend-indicator">
+                  <span class="legend-line navy-legend">--•--</span>
+                  <span>New Contracts</span>
+                </span>
+                <span class="legend-indicator">
+                  <span class="legend-line teal-legend">--•--</span>
+                  <span>Renewals</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Contract Value Tab Container (Matching Screenshots 01-04) -->
+        <div id="statsValueContainer" style="display: none;">
+          
+          <!-- Filters Bar -->
+          <div class="cv-filter-bar">
+            <div class="stats-filter-label-group">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span>FILTERS</span>
+            </div>
+
+            <!-- Filter 1: Branch -->
+            <div class="cv-filter-item">
+              <select id="cvFilterBranch" class="stats-select" onchange="applyContractValueFilters()">
+                <option value="Innomick" selected>Innomick</option>
+              </select>
+            </div>
+
+            <!-- Filter 2: Department -->
+            <div class="cv-filter-item">
+              <select id="cvFilterDept" class="stats-select" onchange="applyContractValueFilters()">
+                <option value="all" selected>All Departments</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Medical Insurance">Medical Insurance</option>
+                <option value="Facilities Management">Facilities Management</option>
+              </select>
+            </div>
+
+            <!-- Filter 3: Service -->
+            <div class="cv-filter-item">
+              <select id="cvFilterService" class="stats-select" onchange="applyContractValueFilters()">
+                <option value="Service" selected>Service</option>
+              </select>
+            </div>
+
+            <!-- Filter 4: Searchable Vendor Dropdown (Screenshot 02) -->
+            <div class="cv-filter-item cv-vendor-dropdown-wrapper" id="cvVendorDropdownWrapper">
+              <button type="button" class="cv-vendor-dropdown-trigger" id="cvVendorDropdownTrigger" onclick="toggleVendorDropdown(event)">
+                <span id="cvSelectedVendorText">All Vendors</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div class="cv-vendor-dropdown-menu" id="cvVendorDropdownMenu">
+                <div class="cv-vendor-search-box">
+                  <input type="text" id="cvVendorSearchInput" placeholder="Search..." oninput="filterVendorList(this.value)">
+                </div>
+                <div class="cv-vendor-options-list" id="cvVendorOptionsList">
+                  <!-- Populated dynamically via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Filter 5: Clear All Button -->
+            <button class="btn-cv-clear-all" onclick="resetContractValueFilters()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              <span>Clear All</span>
+            </button>
+          </div>
+
+          <!-- 4 KPI Summary Cards (Screenshots 01 & 04) -->
+          <div class="cv-kpi-grid">
+            <div class="cv-kpi-card">
+              <div class="cv-kpi-title">TOTAL CONTRACT VALUE</div>
+              <div class="cv-kpi-number">
+                <span id="cvKpiTotalValue">13.46M</span>
+                <span class="cv-kpi-unit">KWD</span>
+              </div>
+            </div>
+
+            <div class="cv-kpi-card">
+              <div class="cv-kpi-title">TOTAL CONTRACTS</div>
+              <div class="cv-kpi-number">
+                <span id="cvKpiTotalContracts">13</span>
+              </div>
+            </div>
+
+            <div class="cv-kpi-card">
+              <div class="cv-kpi-title">AVG PER CONTRACT</div>
+              <div class="cv-kpi-number">
+                <span id="cvKpiAvgContract">1.04M</span>
+                <span class="cv-kpi-unit">KWD</span>
+              </div>
+            </div>
+
+            <div class="cv-kpi-card">
+              <div class="cv-kpi-title">UNIQUE VENDORS</div>
+              <div class="cv-kpi-number">
+                <span id="cvKpiUniqueVendors">7</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 Main Widgets Side-by-Side (Screenshots 01, 03 & 04) -->
+          <div class="cv-widgets-row">
+            
+            <!-- Left Widget: Contract Value Distribution -->
+            <div class="cv-card cv-dist-card">
+              <div class="cv-card-header">
+                <div class="cv-header-icon-box navy-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+                </div>
+                <div class="cv-header-titles">
+                  <h3 class="cv-card-title">Contract Value Distribution</h3>
+                  <span class="cv-card-subtitle" id="cvDistSubtitle">All contracts · 13 contracts</span>
+                </div>
+              </div>
+
+              <!-- Pill Buttons: By Department, By Vendor, By Branch, By Type -->
+              <div class="cv-pill-tabs">
+                <button class="cv-pill-btn active" id="cvPillDept" onclick="switchDistPill('dept')">By Department</button>
+                <button class="cv-pill-btn" id="cvPillVendor" onclick="switchDistPill('vendor')">By Vendor</button>
+                <button class="cv-pill-btn" id="cvPillBranch" onclick="switchDistPill('branch')">By Branch</button>
+                <button class="cv-pill-btn" id="cvPillType" onclick="switchDistPill('type')">By Type</button>
+              </div>
+
+              <!-- Distribution Horizontal Bar Chart -->
+              <div class="cv-dist-chart-area cv-dist-chart-multi">
+                <div id="cvChartRows">
+                  <!-- Rendered dynamically via renderDistributionChart() -->
+                </div>
+
+                <!-- X-Axis Labels & Ticks -->
+                <div class="cv-chart-axis-row" id="cvChartAxisRow">
+                  <span>0</span>
+                  <span>5M</span>
+                  <span>10M</span>
+                  <span>15M</span>
+                  <span>20M</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Widget: Vendor Concentration -->
+            <div class="cv-card cv-concentration-card">
+              <div class="cv-card-header">
+                <div class="cv-header-icon-box teal-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div class="cv-header-titles">
+                  <h3 class="cv-card-title">Vendor Concentration</h3>
+                  <span class="cv-card-subtitle" id="cvVendorConcSubtitle">All · 7 vendors</span>
+                </div>
+              </div>
+
+              <!-- Risk Diversification Alert Banner -->
+              <div class="cv-risk-alert-banner">
+                <div class="risk-banner-left">
+                  <div class="risk-icon-circle">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008272" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div class="risk-banner-text">
+                    <strong>Vendor Concentration</strong>
+                    <span>Risk diversification</span>
+                  </div>
+                </div>
+                <div class="risk-badge-amber">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span>1 high</span>
+                </div>
+              </div>
+
+              <!-- Vendors List with Bars -->
+              <div class="cv-vendor-list-container" id="cvVendorListContainer">
+                <!-- Populated dynamically via JS -->
+              </div>
+
+              <!-- Widget Footer -->
+              <div class="cv-concentration-footer">
+                <span class="footer-label-text">Total Contract Value</span>
+                <span class="footer-amount-text" id="cvVendorTotalFooter">13.46M KWD</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 2: CONTRACT REQUESTS (#requests - matching Screenshot 02)
+           =================================================================== -->
+      <section id="view-requests" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Contract Requests</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-icon-round" title="Refresh Requests" onclick="renderRequestsTable()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+            <button class="btn-icon-round" title="Pending Notifications" onclick="switchRoute('notifications')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <span class="badge-dot"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 Workflow Action Cards (Matching Screenshot 01) -->
+        <div class="request-actions-grid">
+          <!-- 1. New Contract -->
+          <div class="request-action-card" onclick="openNewContractModal('New Contract')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <div class="request-card-title">New Contract</div>
+          </div>
+
+          <!-- 2. Renew Contract -->
+          <div class="request-action-card" onclick="switchRoute('contract_selection', 'renew')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <path d="M10 14a2.5 2.5 0 0 1 4 0"/>
+                <polyline points="14 11 14 14 11 14"/>
+              </svg>
+            </div>
+            <div class="request-card-title">Renew Contract</div>
+          </div>
+
+          <!-- 3. Contract Cancellation -->
+          <div class="request-action-card" onclick="switchRoute('contract_selection', 'cancel')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="9" y1="13" x2="15" y2="17"/>
+                <line x1="15" y1="13" x2="9" y2="17"/>
+              </svg>
+            </div>
+            <div class="request-card-title">Contract Cancellation</div>
+          </div>
+
+          <!-- 4. Amend Contract -->
+          <div class="request-action-card" onclick="switchRoute('contract_selection', 'amend')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <path d="M10 16.5l4-4 1.5 1.5-4 4H10v-1.5z"/>
+              </svg>
+            </div>
+            <div class="request-card-title">Amend Contract</div>
+          </div>
+
+          <!-- 5. Contract Extension -->
+          <div class="request-action-card" onclick="switchRoute('contract_selection', 'extension')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <rect x="9" y="12" width="6" height="5" rx="1"/>
+              </svg>
+            </div>
+            <div class="request-card-title">Contract Extension</div>
+          </div>
+
+          <!-- 6. Contract Completion -->
+          <div class="request-action-card" onclick="switchRoute('contract_selection', 'completion')">
+            <div class="request-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <polyline points="9 15 11 17 15 13"/>
+              </svg>
+            </div>
+            <div class="request-card-title">Contract Completion</div>
+          </div>
+        </div>
+
+        <!-- Filter Box (matching Screenshot 01) -->
+        <div class="cms-filter-card">
+          <div class="filter-header-row">
+            <div class="filter-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span>FILTERS</span>
+            </div>
+            <div class="filter-meta-right">
+              <span class="records-count-text" id="reqRecordCountText">21 records shown</span>
+              <button class="btn-filter-reset" onclick="resetRequestFilters()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Single Horizontal Row of 6 Filter Inputs (Screenshot 01) -->
+          <div class="filter-fields-row-single">
+            <div class="filter-field-item">
+              <label class="filter-label" for="reqFilterBranch">BRANCH</label>
+              <select id="reqFilterBranch" class="cms-select" onchange="filterRequests()">
+                <option value="Innomick" selected>Innomick</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="reqFilterDept">DEPARTMENT</label>
+              <select id="reqFilterDept" class="cms-select" onchange="filterRequests()">
+                <option value="all" selected>All Departments</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Medical Insurance">Medical Insurance</option>
+                <option value="Facilities Management">Facilities Management</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="reqFilterVendor">VENDOR</label>
+              <select id="reqFilterVendor" class="cms-select" onchange="filterRequests()">
+                <option value="all" selected>All Vendors</option>
+                <option value="BrightPath IT Services">BrightPath IT Services</option>
+                <option value="Alpha Tech">Alpha Tech</option>
+                <option value="Delta Engineering">Delta Engineering</option>
+                <option value="Orbit Networks">Orbit Networks</option>
+                <option value="Zenith Facility Services">Zenith Facility Services</option>
+                <option value="Gulf Office Supplies">Gulf Office Supplies</option>
+                <option value="Innomick">Innomick</option>
+                <option value="Crescent Software">Crescent Software</option>
+                <option value="Vertex Supplies">Vertex Supplies</option>
+                <option value="Secure Mail Gateway">Secure Mail Gateway</option>
+                <option value="Metro Cleaning Solutions">Metro Cleaning Solutions</option>
+                <option value="Unknown Vendor">Unknown Vendor</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="reqFilterCategory">CATEGORY</label>
+              <select id="reqFilterCategory" class="cms-select" onchange="filterRequests()">
+                <option value="Service" selected>Service</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label">PRICE RANGE</label>
+              <div class="price-range-inputs">
+                <input type="number" id="reqPriceMin" class="cms-input" placeholder="Min" oninput="filterRequests()">
+                <span class="price-separator">to</span>
+                <input type="number" id="reqPriceMax" class="cms-input" placeholder="Max" oninput="filterRequests()">
+              </div>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label">OWNERSHIP</label>
+              <div class="ownership-toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="reqCreatedByMeToggle" onchange="filterRequests()">
+                  <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Created by me</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requests Data Table (Matching Screenshot 01) -->
+        <div class="cms-table-wrapper">
+          <table class="cms-table requests-sharepoint-table">
+            <thead>
+              <tr>
+                <th>
+                  <div class="th-content">
+                    <span>Contract Reference No.</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Contract Name</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Request Type</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Status</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Vendor Name</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Department</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>Contract Duration</th>
+                <th>Contract Value</th>
+                <th>
+                  <div class="th-content">
+                    <span>Category</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 2B: CONTRACT SELECTION PAGE (#contract_selection - matching Screenshot 02)
+           =================================================================== -->
+      <section id="view-contract-selection" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header" style="margin-bottom: 6px;">
+          <div class="header-text-group">
+            <h2 id="csPageTitle" style="color: #2b387e; font-size: 24px; font-weight: 700;">Contract Renewal Request</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-icon-round" title="Refresh" onclick="renderContractSelection()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+            <button class="btn-teal-primary" id="csActionButton" onclick="executeContractAction()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M10.4 12.6a2 2 0 1 1 3 3L11 18l-3 1 1-3 1.4-3.4z"/>
+              </svg>
+              <span id="csActionBtnText">Renew Contract</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Card Matching Screenshot 02 -->
+        <div class="cms-filter-card" style="margin-bottom: 24px;">
+          <div class="filter-header-row">
+            <div class="filter-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              FILTERS
+            </div>
+            <div class="filter-meta-right">
+              <span class="records-count-text" id="csRecordCount">0 records shown</span>
+              <button class="btn-filter-reset" onclick="resetCSFilters()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <div class="cs-filter-row">
+          <!-- Row 1: Branch, Dept, Vendor, Category -->
+          <div class="filter-fields-grid four-cols" style="margin-bottom: 14px;">
+            <div class="filter-field-item">
+              <label class="filter-label" for="csFilterBranch">BRANCH</label>
+              <select id="csFilterBranch" class="cms-select" onchange="applyCSFilters()">
+                <option value="all">Innomick</option>
+              </select>
+            </div>
+            <div class="filter-field-item">
+              <label class="filter-label" for="csFilterDept">DEPARTMENT</label>
+              <select id="csFilterDept" class="cms-select" onchange="applyCSFilters()">
+                <option value="all">All Departments</option>
+              </select>
+            </div>
+            <div class="filter-field-item">
+              <label class="filter-label" for="csFilterVendor">VENDOR</label>
+              <select id="csFilterVendor" class="cms-select" onchange="applyCSFilters()">
+                <option value="all">All Vendors</option>
+              </select>
+            </div>
+            <div class="filter-field-item">
+              <label class="filter-label" for="csFilterCategory">CATEGORY</label>
+              <select id="csFilterCategory" class="cms-select" onchange="applyCSFilters()">
+                <option value="Service" selected>Service</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 2: Price Range, Ownership -->
+          <div class="filter-fields-grid two-cols">
+            <div class="filter-field-item">
+              <label class="filter-label">PRICE RANGE</label>
+              <div class="price-range-inputs">
+                <input type="number" id="csPriceMin" class="cms-input" placeholder="Min" oninput="applyCSFilters()">
+                <span class="price-separator">to</span>
+                <input type="number" id="csPriceMax" class="cms-input" placeholder="Max" oninput="applyCSFilters()">
+              </div>
+            </div>
+            <div class="filter-field-item">
+              <label class="filter-label">OWNERSHIP</label>
+              <div class="ownership-toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="csCreatedByMeToggle" onchange="applyCSFilters()">
+                  <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Created by me</span>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <p class="cs-subtitle-prompt" id="csPromptText" style="color: #323130; font-size: 13.5px; margin: 18px 0 10px;">Select a contract to start Renewal request</p>
+        <!-- Selection Table or No Data Found Message -->
+        <div id="csContentContainer">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 3: CONTRACTS REPOSITORY (#contracts or #mycontracts - matching Screenshot 01)
+           =================================================================== -->
+      <section id="view-contracts" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Contracts</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-icon-round" title="Refresh Contracts" onclick="filterContracts()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+            <button class="btn-icon-round" title="Notifications" onclick="switchRoute('notifications')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <span class="badge-dot"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Contracts Filters Matching Screenshot 01 -->
+        <div class="cms-filter-card">
+          <div class="filter-header-row">
+            <div class="filter-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span>FILTERS</span>
+            </div>
+            <div class="filter-meta-right">
+              <span class="records-count-text" id="contractsCountText">4 records shown</span>
+              <button class="btn-filter-reset" onclick="resetContractFilters()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Single Horizontal Row of 6 Filter Inputs (Screenshot 01) -->
+          <div class="filter-fields-row-single">
+            <div class="filter-field-item">
+              <label class="filter-label" for="cntFilterBranch">BRANCH</label>
+              <select id="cntFilterBranch" class="cms-select" onchange="filterContracts()">
+                <option value="Innomick" selected>Innomick</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="cntFilterDept">DEPARTMENT</label>
+              <select id="cntFilterDept" class="cms-select" onchange="filterContracts()">
+                <option value="all" selected>All Departments</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Medical Insurance">Medical Insurance</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="cntFilterVendor">VENDOR</label>
+              <select id="cntFilterVendor" class="cms-select" onchange="filterContracts()">
+                <option value="all" selected>All Vendors</option>
+                <option value="Innomick">Innomick</option>
+                <option value="Gulf Office Supplies">Gulf Office Supplies</option>
+                <option value="Innomick Solutions">Innomick Solutions</option>
+                <option value="Alpha Tech">Alpha Tech</option>
+                <option value="Delta Engineering">Delta Engineering</option>
+                <option value="Orbit Networks">Orbit Networks</option>
+                <option value="Zenith Facility Services">Zenith Facility Services</option>
+                <option value="Amazon Web Services (AWS Enterprise)">Amazon Web Services (AWS Enterprise)</option>
+                <option value="Microsoft Corporation (Azure & M365)">Microsoft Corporation (Azure & M365)</option>
+                <option value="Oracle Cloud Infrastructure (OCI)">Oracle Cloud Infrastructure (OCI)</option>
+                <option value="Cisco Systems International">Cisco Systems International</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label" for="cntFilterCategory">CATEGORY</label>
+              <select id="cntFilterCategory" class="cms-select" onchange="filterContracts()">
+                <option value="Service" selected>Service</option>
+                <option value="Cloud Infrastructure">Cloud Infrastructure</option>
+                <option value="Software Licensing">Software Licensing</option>
+                <option value="Hardware Maintenance">Hardware Maintenance</option>
+              </select>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label">PRICE RANGE</label>
+              <div class="price-range-inputs">
+                <input type="number" id="cntPriceMin" class="cms-input" placeholder="Min" oninput="filterContracts()">
+                <span class="price-separator">to</span>
+                <input type="number" id="cntPriceMax" class="cms-input" placeholder="Max" oninput="filterContracts()">
+              </div>
+            </div>
+
+            <div class="filter-field-item">
+              <label class="filter-label">OWNERSHIP</label>
+              <div class="ownership-toggle-container">
+                <label class="switch">
+                  <input type="checkbox" id="cntCreatedByMeToggle" onchange="filterContracts()">
+                  <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Created by me</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contracts Table (8 Columns Matching Screenshot 01) -->
+        <div class="cms-table-wrapper">
+          <table class="cms-table contracts-sharepoint-table">
+            <thead>
+              <tr>
+                <th>
+                  <div class="th-content">
+                    <span>Contract Reference No.</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Contract Name</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Status</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <span>Vendor Name</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>Department</th>
+                <th>Contract Duration</th>
+                <th>
+                  <div class="th-content">
+                    <span>Contract Value</span>
+                    <svg class="col-filter-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </div>
+                </th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="contractsTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 4: APPROVALS SUBSYSTEM (#approvals - matching Screenshot 05, 06)
+           =================================================================== -->
+      <section id="view-approvals" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Approvals</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-icon-round" title="Refresh Approvals" onclick="renderApprovals()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+            <button class="btn-teal-primary" onclick="openCreateApprovalTemplateModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Create Approval Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Approvals Tabs (matching Screenshot 05 & live SharePoint) -->
+        <div class="cms-nav-tabs" style="border-bottom: 1px solid #cbd5e1;">
+          <button class="cms-tab-btn active" id="appTabInbox" onclick="switchApprovalTab('inbox')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+            </svg>
+            Inbox <span class="tab-unread-dot"></span>
+          </button>
+          <button class="cms-tab-btn" id="appTabOutbox" onclick="switchApprovalTab('outbox')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+            </svg>
+            Outbox
+          </button>
+          <button class="cms-tab-btn" id="appTabTemplates" onclick="switchApprovalTab('templates')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+              <circle cx="12" cy="12" r="3"/>
+              <line x1="3" y1="12" x2="9" y2="12"/>
+              <line x1="15" y1="12" x2="21" y2="12"/>
+            </svg>
+            Approval Templates
+          </button>
+          <button class="cms-tab-btn" id="appTabHistory" onclick="switchApprovalTab('history')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <polyline points="9 15 11 17 15 13"/>
+            </svg>
+            History
+          </button>
+        </div>
+
+        <div id="approvalsTabContent">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 5: CONTRACT TEMPLATES (#templates - matching Screenshot 07)
+           =================================================================== -->
+      <section id="view-templates" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Contract Template</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-teal-primary" onclick="openCreateTemplateModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Create Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Sort Bar (matching Screenshot 07) -->
+        <div class="templates-toolbar">
+          <div class="template-search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="templateSearchInput" placeholder="Search templates..." oninput="filterTemplates(this.value)">
+          </div>
+
+          <div class="template-sort-group">
+            <span class="sort-label">SORT BY</span>
+            <select id="templateSortSelect" class="cms-select" style="min-width: 180px;" onchange="sortTemplates(this.value)">
+              <option value="name_asc">Name: A to Z</option>
+              <option value="name_desc">Name: Z to A</option>
+              <option value="date_desc">Date: Newest to Oldest</option>
+              <option value="date_asc">Date: Oldest to Newest</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3-Column Template Grid (matching Screenshot 07) -->
+        <div class="templates-grid" id="templatesGridContainer">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 6: NOTIFICATIONS (#notifications - matching Screenshot 09)
+           =================================================================== -->
+      <section id="view-notifications" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group" style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-icon-round" onclick="switchRoute('statistics')" title="Back">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <h2>Notifications</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-icon-round" title="Refresh Notifications" onclick="renderNotifications()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="notifications-list" id="notificationsListContainer">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 7: CONTRACT IMPORT (#import - matching Screenshot 10)
+           =================================================================== -->
+      <section id="view-import" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Contract Import</h2>
+          </div>
+        </div>
+
+        <!-- 2 Import Cards Row (matching Screenshot 10) -->
+        <div class="import-cards-row">
+          <!-- Card 1: Manual Import -->
+          <div class="import-action-card">
+            <div class="import-card-title">Manual Import</div>
+            <div class="import-card-desc">
+              Use the existing contract import builder for single migrated contract entry.
+            </div>
+            <button class="btn-teal-primary" onclick="impOpenManualModal()">
+              Manual Import
+            </button>
+          </div>
+
+          <!-- Card 2: Excel Import -->
+          <div class="import-action-card">
+            <div class="import-card-title">Excel Import</div>
+            <div class="import-card-desc">
+              Upload multiple contracts and versions through the Excel import wizard.
+            </div>
+            <button class="btn-teal-primary" onclick="switchRoute('excel_import')">
+              Excel Import
+            </button>
+          </div>
+        </div>
+
+        <!-- Imported (migrated) contracts -->
+        <div class="cms-table-wrapper">
+          <table class="cms-table">
+            <thead>
+              <tr>
+                <th>Contract ID</th>
+                <th>Contract Name</th>
+                <th>Request Type</th>
+                <th>Status</th>
+                <th>Vendor Name</th>
+                <th>Department</th>
+                <th style="min-width: 220px;">Contract Duration</th>
+                <th>Contract Value</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="importedBatchesTableBody">
+              <!-- Populated by renderImportBatches() -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 8: CONTRACT APPROVAL REVIEW (#/approval-review/:id)
+           =================================================================== -->
+      <section id="view-approval-review" class="cms-view-section" style="display: none;">
+        <div class="approval-review-container">
+          <!-- Top Bar -->
+          <div class="review-top-bar">
+            <div class="review-title-group">
+              <button class="btn-back-nav" onclick="switchRoute('approvals')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back
+              </button>
+              <div>
+                <h2 style="font-size: 18px; font-weight: 700; color: #1e293b;" id="reviewContractTitle">Migrated Contract — Approval Review</h2>
+                <div style="font-size: 12px; color: #64748b;" id="reviewContractSubtitle">INM/MID/SVC/1750/2025 · Medical TPA Services · Service</div>
+              </div>
+            </div>
+            <div class="review-header-actions">
+              <button class="btn-outline-teal" onclick="openApprovalHistoryModal()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Approval History
+              </button>
+              <button class="btn-outline-teal" onclick="openApprovalCertificateModal()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                View Certificate
+              </button>
+              <button class="btn-outline-red" onclick="openApprovalRejectModal()">
+                &times; Reject
+              </button>
+              <button class="btn-outline-orange" onclick="openApprovalRequestChangeModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Request Change
+              </button>
+              <button class="btn-teal-primary" onclick="approveCurrentReview()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Approve
+              </button>
+            </div>
+          </div>
+
+          <!-- Stepper: Approval Chain -->
+          <div class="approval-chain-card">
+            <div class="approval-chain-label">APPROVAL CHAIN</div>
+            <div class="stepper-track">
+              <div class="stepper-node">
+                <div class="stepper-circle completed" id="stepCircle0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="stepper-node-title">Submitted by</div>
+                <div class="stepper-node-user" id="stepUser0">Arjun Mehta</div>
+                <div class="stepper-node-date">22 September 2026</div>
+              </div>
+              <div class="stepper-line completed" id="stepLine1"></div>
+              <div class="stepper-node">
+                <div class="stepper-circle active" id="stepCircle1">1</div>
+                <div class="stepper-node-title">Step 1</div>
+                <div class="stepper-node-user" id="stepUser1">Arjun Mehta</div>
+                <div class="stepper-node-date">Due: 24 September 2026</div>
+              </div>
+              <div class="stepper-line" id="stepLine2"></div>
+              <div class="stepper-node">
+                <div class="stepper-circle pending" id="stepCircle2">2</div>
+                <div class="stepper-node-title">Step 2</div>
+                <div class="stepper-node-user" id="stepUser2">Sara Thomas</div>
+                <div class="stepper-node-date" style="color: #64748b;">After prev. approval</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3-Column Layout -->
+          <div class="review-3col-grid">
+            <!-- Left Column: Contract Overview -->
+            <div class="review-left-panel">
+              <div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase;">CONTRACT OVERVIEW</div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Reference No.</span>
+                <span class="review-meta-val" id="reviewRefNo">INM/MID/SVC/1750/2025</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Contract Name</span>
+                <span class="review-meta-val" id="reviewName">Medical TPA Services</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Contract Type</span>
+                <span class="review-meta-val" id="reviewType">Service</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Contract Value</span>
+                <span class="review-meta-val" style="color: #008272; font-weight: 700;" id="reviewValue">4,000 KWD</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Vendor Name</span>
+                <span class="review-meta-val" id="reviewVendor">Nova Trading Co.</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Branch</span>
+                <span class="review-meta-val" id="reviewBranch">Innomick Technologies - HQ</span>
+              </div>
+              <div class="review-meta-item">
+                <span class="review-meta-label">Department</span>
+                <span class="review-meta-val" id="reviewDept"><span class="table-badge" style="background:#e0f2fe; color:#0369a1;">Medical Insurance</span></span>
+              </div>
+            </div>
+
+            <!-- Center Column: Version Tabs & Content -->
+            <div class="review-center-panel">
+              <div class="version-tabs-nav" id="reviewVersionTabs">
+                <button class="version-tab-btn active" onclick="switchReviewVersionTab('amendment')">
+                  <span style="background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px; font-size: 10px;">AMENDMENT</span>
+                  <span style="background: #008272; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 10px;">CURRENT</span>
+                  <span>23 July 2024 — 21 October 2025</span>
+                </button>
+                <button class="version-tab-btn" onclick="switchReviewVersionTab('extension')">
+                  <span style="background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-size: 10px;">EXTENSION</span>
+                  <span>2 July 2024 — 14 November 2024</span>
+                </button>
+                <button class="version-tab-btn" onclick="switchReviewVersionTab('renewal')">
+                  <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size: 10px;">RENEWAL</span>
+                  <span>23 July 2022 — 21 June 2024</span>
+                </button>
+                <button class="version-tab-btn" onclick="switchReviewVersionTab('initial')">
+                  <span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 10px;">NEW</span>
+                  <span>Initial Contract</span>
+                </button>
+              </div>
+
+              <!-- Version Content -->
+              <div id="reviewVersionContent">
+                <div style="font-size: 12px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">AMENDMENT DETAILS</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">ADDENDUM NUMBER</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 4px;">INM/MID/SVC/1750/2025/Addendum</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">NEW EFFECTIVE DATE</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #64748b; margin-top: 4px;">—</div>
+                  </div>
+                </div>
+
+                <div style="font-size: 12px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">CONTRACT INFORMATION</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">CONTRACT NAME</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 4px;">Medical TPA Services</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">CONTRACT TYPE</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 4px;">Service</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">CONTRACT VALUE (KWD)</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 4px;">4,000</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">START DATE / END DATE</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #64748b; margin-top: 4px;">— to —</div>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                  <div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">DESCRIPTION</div>
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 14px; border-radius: 6px; font-size: 13px; color: #334155;">
+                    test agreement scope and contractual commitments under Innomick SLA framework.
+                  </div>
+                </div>
+
+                <div style="font-size: 12px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">CONTRACT OPTIONS</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">BUDGET STATUS</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #166534; margin-top: 4px;">Approved Budget 2026</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">BUDGET CODE</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-top: 4px;">BC-INNO-2026-IT4</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Comments -->
+            <div class="review-right-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase;">COMMENTING ON</span>
+                <span style="background: #008272; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">CURRENT</span>
+              </div>
+              <textarea class="cms-input" id="reviewCommentInput" rows="4" placeholder="Add your comment here..." style="resize: vertical; font-size: 13px;"></textarea>
+              <button class="btn-teal-primary" style="justify-content: center;" onclick="addReviewComment()">Add Comment</button>
+
+              <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 10px;">COMMENTS</div>
+              <div class="comments-thread-box" id="reviewCommentsThread">
+                <div style="font-size: 12.5px; color: #94a3b8; font-style: italic; text-align: center; padding: 18px 0;">No comments yet for this version.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 9: CONTRACT REQUEST DETAILS (#/request-detail/:id)
+           =================================================================== -->
+      <section id="view-request-detail" class="cms-view-section" style="display: none;">
+        <div class="detail-view-container">
+          <div class="detail-view-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="btn-back-nav" onclick="switchRoute('requests')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back
+              </button>
+              <h2 style="font-size: 18px; font-weight: 700; color: #1e293b;">Contract Request Details</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="btn-icon-subtle" title="Refresh Request" onclick="showToast('Request details refreshed', 'info')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M1 20v-6h6"></path>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+              </button>
+              <span class="badge-in-approval" style="padding: 6px 14px; font-size: 12px; font-weight: 700;" id="reqDetailBadge">In Approval</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 280px; gap: 16px;">
+            <div class="detail-view-main-card">
+              <!-- 3-Column Metadata Form -->
+              <div class="detail-form-grid-3col">
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Reference No.</label>
+                  <div style="font-weight: 700; font-size: 14px; color: #1e293b; padding: 8px 0;" id="reqDetailRefNo">INNO/ITD/SVC/2634/2026</div>
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Type</label>
+                  <div style="font-weight: 700; font-size: 14px; color: #1e293b; padding: 8px 0;" id="reqDetailType">Service</div>
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Name *</label>
+                  <input type="text" class="detail-field-input" id="reqDetailName" value="Help Desk Outsourcing">
+                </div>
+
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Value *</label>
+                  <input type="text" class="detail-field-input" id="reqDetailValue" value="12,345">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Start Date *</label>
+                  <input type="text" class="detail-field-input" id="reqDetailStartDate" value="16-10-2026">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract End Date *</label>
+                  <input type="text" class="detail-field-input" id="reqDetailEndDate" value="31-10-2026">
+                </div>
+
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Notice Period (Months) *</label>
+                  <input type="text" class="detail-field-input" id="reqDetailNotice" value="1">
+                </div>
+              </div>
+
+              <!-- 4 Subtabs -->
+              <div class="detail-subtabs-bar">
+                <button class="detail-subtab-btn active" id="reqTabBtnDetail" onclick="switchRequestSubTab('detail')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  Detail
+                </button>
+                <button class="detail-subtab-btn" id="reqTabBtnPrimary" onclick="switchRequestSubTab('primary')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  Primary Documents
+                </button>
+                <button class="detail-subtab-btn" id="reqTabBtnSupporting" onclick="switchRequestSubTab('supporting')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                  Supporting Documents
+                </button>
+                <button class="detail-subtab-btn" id="reqTabBtnHistory" onclick="switchRequestSubTab('history')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  Approval History
+                </button>
+              </div>
+
+              <!-- Tab 1: Detail Panel -->
+              <div id="reqSubPanelDetail">
+                <div style="margin-bottom: 18px;">
+                  <label class="detail-field-label" style="display:block; margin-bottom: 6px;">Contract Description</label>
+                  <textarea class="cms-input" rows="3" style="width: 100%;">Agreement for comprehensive enterprise IT services, cloud maintenance, and software lifecycle governance.</textarea>
+                </div>
+
+                <div style="display: flex; gap: 32px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">Renewable</span>
+                    <label style="font-size: 13px;"><input type="radio" name="reqRenewable" checked> Yes</label>
+                    <label style="font-size: 13px;"><input type="radio" name="reqRenewable"> No</label>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">Auto Renewal</span>
+                    <input type="checkbox" checked style="accent-color: #008272; width: 18px; height: 18px;">
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">Extendable</span>
+                    <label style="font-size: 13px;"><input type="radio" name="reqExtendable" checked> Yes</label>
+                    <label style="font-size: 13px;"><input type="radio" name="reqExtendable"> No</label>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                  <label style="font-size: 13px; font-weight: 600; color: #475569;">
+                    Competitive Bidding &nbsp;
+                    <input type="checkbox" checked style="accent-color: #008272;"> Single Source
+                  </label>
+                </div>
+
+                <!-- Vendor Quotes Table -->
+                <div class="cms-table-wrapper" style="margin-bottom: 12px;">
+                  <table class="cms-table">
+                    <thead>
+                      <tr>
+                        <th>SERIAL NUMBER</th>
+                        <th>VENDOR NAME</th>
+                        <th>PRICE (KWD)</th>
+                        <th>SELECT VENDOR</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td style="font-weight: 600;">Innomick Vendor (12356)</td>
+                        <td style="font-weight: 700; color: #008272;">1,234,445</td>
+                        <td><input type="radio" name="selectedVendorQuote" checked style="accent-color: #008272;"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-bottom: 14px;">* Vendor details are mandatory.</div>
+                <div style="font-size: 13px;"><strong>Recommended Vendor:</strong> <span style="font-weight: 700; color: #008272;">Innomick Vendor (12356)</span></div>
+              </div>
+
+              <!-- Tab 2: Primary Documents Panel -->
+              <div id="reqSubPanelPrimary" style="display: none;">
+                <div class="doc-review-card">
+                  <div class="doc-card-header">
+                    <div class="doc-card-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                      CONTRACT REQUEST LETTER
+                    </div>
+                    <span class="badge-draft">Draft</span>
+                  </div>
+                  <div style="font-size: 12px; color: #64748b; margin-bottom: 14px;">ID: INNO/ITD/SVC/2634/2026 &nbsp;|&nbsp; Submitted: 2026-10-16</div>
+                  <div class="doc-card-actions">
+                    <button class="btn-outline-teal" onclick="showToast('Version History opened for Request Letter', 'info')">Version History</button>
+                    <button class="btn-teal-primary" onclick="showToast('Approval initiated for Request Letter', 'success')">Start Approval</button>
+                    <button class="btn-outline-teal" onclick="showToast('Viewing Request Letter document', 'info')">View</button>
+                  </div>
+                </div>
+
+                <div class="doc-review-card">
+                  <div class="doc-card-header">
+                    <div class="doc-card-title">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                      CONTRACT DRAFT
+                    </div>
+                    <span class="badge-approved" style="background:#dcfce7; color:#15803d; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;">Approved</span>
+                  </div>
+                  <div style="font-size: 12px; color: #64748b; margin-bottom: 10px;">ID: INNO/ITD/SVC/2634/2026 &nbsp;|&nbsp; Submitted: 2026-10-16</div>
+                  <a href="javascript:void(0)" onclick="showToast('Opening Draft Content Editor', 'info')" style="font-size: 12px; color: #008272; font-weight: 600; text-decoration: underline; display: inline-block; margin-bottom: 14px;">Edit Draft Content</a>
+                  <div class="doc-card-actions" style="margin-bottom: 16px;">
+                    <button class="btn-outline-teal" onclick="showToast('Version History: v2.1 active', 'info')">Version History</button>
+                    <button class="btn-teal-primary" onclick="showToast('Approvals selected', 'success')">Select Approvals</button>
+                    <button class="btn-outline-teal" onclick="switchRoute('approval_review', 'APP-F01')">Approval Details ↗</button>
+                    <button class="btn-outline-teal" onclick="showToast('Viewing Contract Draft PDF', 'info')">View</button>
+                  </div>
+                  <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 10px;">APPROVAL CHAIN</div>
+                  <div style="display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 12px 18px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="background: #008272; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">✓</span>
+                      <div>
+                        <div style="font-size: 12px; font-weight: 700; color: #1e293b;">Submitted by</div>
+                        <div style="font-size: 11px; color: #64748b;">Arjun Mehta</div>
+                      </div>
+                    </div>
+                    <div style="flex: 1; height: 2px; background: #008272;"></div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="background: #008272; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">✓</span>
+                      <div>
+                        <div style="font-size: 12px; font-weight: 700; color: #1e293b;">Vendor Approval</div>
+                        <div style="font-size: 11px; color: #64748b;">Innomick Review Lead</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab 3: Supporting Documents Panel -->
+              <div id="reqSubPanelSupporting" style="display: none;">
+                <div class="file-drop-zone" onclick="showToast('File selector opened: select PDF, DOCX, XLSX', 'info')">
+                  <div style="width: 48px; height: 48px; border-radius: 50%; background: #e6f4f2; display: flex; align-items: center; justify-content: center; color: #008272;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  </div>
+                  <div style="font-size: 14px; font-weight: 700; color: #008272;">Browse</div>
+                  <div style="font-size: 12px; color: #64748b;">Drag & drop file here, or browse</div>
+                  <div style="font-size: 11px; color: #94a3b8;">Supports: Docx, Pdf, Xlsx, Ppt, etc. (Max 50MB)</div>
+                </div>
+              </div>
+
+              <!-- Tab 4: Approval History Panel -->
+              <div id="reqSubPanelHistory" style="display: none;">
+                <div style="display: flex; gap: 10px; margin-bottom: 18px;">
+                  <button class="btn-teal-primary" style="padding: 6px 14px; font-size: 12px;" onclick="showToast('Request Letter History loaded', 'info')">Request Letter History</button>
+                  <button class="btn-outline-teal" style="padding: 6px 14px; font-size: 12px;" onclick="showToast('Contract Draft History loaded', 'info')">Contract Draft History</button>
+                </div>
+                <div style="text-align: center; padding: 40px; color: #64748b; font-size: 13px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                  No approval history recorded yet for this active submission.
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Sidebar: Approver Comments -->
+            <div class="review-right-panel" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px;">
+              <div style="font-size: 12px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase;">APPROVER COMMENTS</div>
+              <div style="font-size: 11.5px; color: #64748b; margin-top: 4px; margin-bottom: 16px;">Comments left by approvers on this contract request during review.</div>
+              <div style="text-align: center; color: #94a3b8; font-style: italic; font-size: 12px; padding: 24px 0;">No approver comments yet.</div>
+              <textarea class="cms-input" id="reqCommentInput" rows="3" placeholder="Leave note for review board..." style="width: 100%; font-size: 12px; margin-top: 10px;"></textarea>
+              <button class="btn-teal-primary" style="margin-top: 8px; justify-content: center;" onclick="addRequestComment()">Post Comment</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 10: CONTRACT DETAILS (#/contract-detail/:id)
+           =================================================================== -->
+      <section id="view-contract-detail" class="cms-view-section" style="display: none;">
+        <!-- Rendered by cdRender() in cms_contractdetail.js -->
+        <div id="cdRoot"></div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 11: EDIT CONTRACT TEMPLATE (#/template-editor/:id)
+           =================================================================== -->
+      <section id="view-import-builder" class="cms-view-section" style="display: none;">
+        <!-- Rendered by impRenderBuilder() in cms_import.js -->
+        <div id="impBuilderRoot"></div>
+      </section>
+
+      <section id="view-nc-approve" class="cms-view-section" style="display: none;">
+        <!-- Rendered by ncRenderApprovePage() in cms_ncapprove.js -->
+        <div id="ncApproveRoot"></div>
+      </section>
+
+      <section id="view-template-viewer" class="cms-view-section" style="display: none;">
+        <!-- Rendered by tplRenderViewer() in cms_templates.js -->
+        <div id="tplViewerRoot"></div>
+      </section>
+
+      <section id="view-template-editor" class="cms-view-section" style="display: none;">
+        <!-- Rendered by tplRenderEditor() in cms_templates.js (create + edit modes) -->
+        <div id="tplEditorRoot"></div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 12: EXCEL CONTRACT IMPORT WIZARD (#/excel-import)
+           =================================================================== -->
+      <section id="view-excel-import" class="cms-view-section" style="display: none;">
+        <div class="detail-view-container">
+          <div class="detail-view-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="btn-back-nav" onclick="switchRoute('import')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back
+              </button>
+              <div>
+                <h2 style="font-size: 18px; font-weight: 700; color: #1e293b;">Excel Contract Import</h2>
+                <div style="font-size: 12px; color: #64748b;">Upload, validate, preview, attach documents, and import multiple contracts with multiple versions.</div>
+              </div>
+            </div>
+            <button class="btn-outline-teal" onclick="downloadImportTemplate()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download Template
+            </button>
+          </div>
+
+          <!-- 6-Step Stepper -->
+          <div class="excel-wizard-stepper">
+            <div class="wizard-step-pill active" id="importStep1">
+              <div class="wizard-step-num">1</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #008272; text-transform: uppercase;">UPLOAD</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Upload Excel</div>
+              </div>
+            </div>
+            <div class="wizard-step-pill" id="importStep2">
+              <div class="wizard-step-num">2</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">VALIDATE</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Validate Excel</div>
+              </div>
+            </div>
+            <div class="wizard-step-pill" id="importStep3">
+              <div class="wizard-step-num">3</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">PREVIEW</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Preview Contracts</div>
+              </div>
+            </div>
+            <div class="wizard-step-pill" id="importStep4">
+              <div class="wizard-step-num">4</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">DOCUMENTS</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Upload Documents</div>
+              </div>
+            </div>
+            <div class="wizard-step-pill" id="importStep5">
+              <div class="wizard-step-num">5</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">IMPORT</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Import</div>
+              </div>
+            </div>
+            <div class="wizard-step-pill" id="importStep6">
+              <div class="wizard-step-num">6</div>
+              <div>
+                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">COMPLETE</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1e293b;">Success</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-view-main-card">
+            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">Excel Contract Import</h3>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Upload a populated `.xlsx` file formatted according to Innomick CMS schema.</p>
+
+            <div class="file-drop-zone" onclick="simulateExcelUpload()" id="excelDropZone">
+              <div style="width: 52px; height: 52px; border-radius: 50%; background: #e6f4f2; display: flex; align-items: center; justify-content: center; color: #008272;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              </div>
+              <div style="font-size: 15px; font-weight: 700; color: #1e293b;">Drag &amp; Drop Excel Here</div>
+              <div style="font-size: 12px; color: #64748b;">OR</div>
+              <button class="btn-teal-primary" type="button" style="padding: 8px 18px;">Browse File</button>
+              <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Supported format: .xlsx only</div>
+            </div>
+
+            <div id="excelUploadedInfo" style="display: none; background: #f0fdfa; border: 1px solid #ccfbf1; padding: 14px 18px; border-radius: 8px; margin-top: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="color: #0f766e; font-size: 13px;">Selected File:</strong> <span style="font-size: 13px; font-weight: 600;" id="excelUploadedName">Innomick_Legacy_Contracts_Batch_2026.xlsx</span>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">24 records found &bull; Ready for schema validation</div>
+                </div>
+                <span class="table-badge" style="background:#dcfce7; color:#15803d;">Validated</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+              <button class="btn-filter-reset" onclick="switchRoute('import')">Cancel</button>
+              <button class="btn-teal-primary" id="btnExcelProceed" onclick="advanceExcelWizard()">Upload Excel</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 14: SELECT CONTRACT TEMPLATE (#/contract-templates?cid=...)
+           Step 2 of the New Contract flow
+           =================================================================== -->
+      <section id="view-nc-template-select" class="cms-view-section" style="display: none;">
+        <div class="cms-view-header">
+          <div class="header-text-group">
+            <h2>Contract Template</h2>
+          </div>
+          <div class="header-actions-group">
+            <button class="btn-teal-primary" id="ncNoTemplateBtn" style="display: none;" onclick="ncContinueWithoutTemplate()">&#8594; Continue without template</button>
+            <button class="btn-teal-primary" onclick="openCreateTemplateModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Create Template
+            </button>
+          </div>
+        </div>
+
+        <div class="templates-toolbar">
+          <div class="nc-select-template-title">Select Contract Template For <span id="ncTplSelectRef"></span></div>
+          <div class="template-search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="ncTplSearchInput" placeholder="Search templates" oninput="ncRenderTemplatePicker()">
+          </div>
+          <div class="template-sort-group">
+            <span class="sort-label">SORT BY</span>
+            <select id="ncTplSortSelect" class="cms-select" style="min-width: 180px;" onchange="ncRenderTemplatePicker()">
+              <option value="name_asc">Name: A to Z</option>
+              <option value="name_desc">Name: Z to A</option>
+              <option value="date_desc">Date: Newest to Oldest</option>
+              <option value="date_asc">Date: Oldest to Newest</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="templates-grid-sp" id="ncTplPickerGrid">
+          <!-- Populated by ncRenderTemplatePicker() -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 15: NEW CONTRACT REQUEST DETAILS (#/new-contract-details/:id)
+           Step 3 of the New Contract flow - editable draft form
+           =================================================================== -->
+      <section id="view-nc-details" class="cms-view-section" style="display: none;">
+        <div class="detail-view-container">
+          <div class="detail-view-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <h2 style="font-size: 18px; font-weight: 700; color: #1e293b;">Contract Request Details</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="btn-icon-subtle" title="Refresh" onclick="ncOpenDetails(NCState.current.id)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M1 20v-6h6"></path>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+              </button>
+              <span class="badge-draft" style="padding: 6px 18px; font-size: 12px;" id="ncStatusBadge">Draft</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 280px; gap: 16px;" class="nc-details-layout">
+            <div class="detail-view-main-card">
+              <!-- Header fields -->
+              <div class="detail-form-grid-3col">
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Reference No.</label>
+                  <div class="nc-readonly-value" id="ncRefNo"></div>
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Type</label>
+                  <div class="nc-readonly-value" id="ncContractType"></div>
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Name *</label>
+                  <input type="text" class="detail-field-input nc-field" id="ncName" placeholder="Enter here..." data-required="true">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Value *</label>
+                  <input type="number" class="detail-field-input nc-field" id="ncValue" placeholder="Enter here..." data-required="true">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract Start Date *</label>
+                  <input type="date" class="detail-field-input nc-field" id="ncStartDate" data-required="true">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Contract End Date *</label>
+                  <input type="date" class="detail-field-input nc-field" id="ncEndDate" data-required="true">
+                </div>
+                <div class="detail-field-box">
+                  <label class="detail-field-label">Notice Period (Months) *</label>
+                  <input type="number" class="detail-field-input nc-field" id="ncNotice" value="1" min="0" data-required="true">
+                </div>
+              </div>
+
+              <!-- Renewal / Cancellation / Amendment / Extension / Completion specific fields -->
+              <div id="ncModeBlock"></div>
+
+              <!-- 4 Subtabs -->
+              <div class="detail-subtabs-bar">
+                <button class="detail-subtab-btn active" id="ncTabBtnDetail" onclick="ncSwitchTab('detail')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  Detail
+                </button>
+                <button class="detail-subtab-btn" id="ncTabBtnPrimary" onclick="ncSwitchTab('primary')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  Primary Documents
+                </button>
+                <button class="detail-subtab-btn" id="ncTabBtnSupporting" onclick="ncSwitchTab('supporting')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                  Supporting Documents
+                </button>
+                <button class="detail-subtab-btn" id="ncTabBtnContractHistory" onclick="ncSwitchTab('contractHistory')" style="display: none;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+                  Contract History
+                </button>
+                <button class="detail-subtab-btn" id="ncTabBtnHistory" onclick="ncSwitchTab('history')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  Approval History
+                </button>
+              </div>
+
+              <!-- Tab 1: Detail -->
+              <div id="ncPanelDetail">
+                <div style="margin-bottom: 18px;">
+                  <label class="detail-field-label" style="display:block; margin-bottom: 6px;">Contract Description</label>
+                  <textarea class="cms-input nc-field" id="ncDescription" rows="3" style="width: 100%;" placeholder="Type here..."></textarea>
+                </div>
+
+                <div class="nc-radio-row">
+                  <div class="nc-radio-group">
+                    <span class="nc-radio-label">Renewable</span>
+                    <label><input type="radio" name="ncRenewable" value="Yes" onchange="ncRenewableChanged()"> Yes</label>
+                    <label><input type="radio" name="ncRenewable" value="No" checked onchange="ncRenewableChanged()"> No</label>
+                  </div>
+                  <div class="nc-radio-group" id="ncAutoRenewalGroup" style="display: none;">
+                    <span class="nc-radio-label">Auto Renewal</span>
+                    <input type="checkbox" class="nc-toggle" id="ncAutoRenewal">
+                  </div>
+                  <div class="nc-radio-group">
+                    <span class="nc-radio-label">Extendable</span>
+                    <label><input type="radio" name="ncExtendable" value="Yes"> Yes</label>
+                    <label><input type="radio" name="ncExtendable" value="No" checked> No</label>
+                  </div>
+                </div>
+
+                <div class="nc-radio-row" style="margin-bottom: 14px;">
+                  <div class="nc-radio-group">
+                    <span class="nc-radio-label">Competitive Bidding</span>
+                    <label><input type="checkbox" id="ncSingleSource" onchange="ncToggleSingleSource()"> Single Source</label>
+                  </div>
+                </div>
+
+                <!-- Vendor Quotes Table -->
+                <div class="cms-table-wrapper nc-vendor-table-wrap" id="ncVendorTableWrap">
+                  <table class="cms-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 90px;">SERIAL NUMBER</th>
+                        <th>VENDOR NAME</th>
+                        <th style="width: 130px;">PRICE (KWD)</th>
+                        <th style="width: 90px;">SELECT VENDOR</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ncVendorRows">
+                      <!-- Rendered by ncRenderVendorRows() -->
+                    </tbody>
+                  </table>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin: 8px 0 18px;">* Vendor details are mandatory.</div>
+
+                <div class="nc-recommended-row">
+                  <span class="nc-radio-label" id="ncRecommendedLabel">Final Recommended Vendor *</span>
+                  <span class="nc-recommended-value" id="ncRecommendedVendor"></span>
+                </div>
+
+                <div id="ncVendorJustificationBox" style="display: none; margin-bottom: 16px;">
+                  <label class="detail-field-label" style="display:block; margin-bottom: 6px;">Vendor Justification *</label>
+                  <textarea class="cms-input nc-field" id="ncVendorJustification" rows="3" style="width: 100%;" placeholder="Type Vendor Justification here..."></textarea>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                  <label class="detail-field-label" style="display:block; margin-bottom: 6px;">Recommendation Justification *</label>
+                  <textarea class="cms-input nc-field" id="ncRecJustification" rows="3" style="width: 100%;" placeholder="Type Recommendation Justification here..." data-required="true"></textarea>
+                </div>
+
+                <div class="nc-section-divider"></div>
+
+                <div style="margin-bottom: 14px;">
+                  <div class="nc-radio-label" style="margin-bottom: 10px;">Budget Status</div>
+                  <div class="nc-budget-row">
+                    <div class="nc-radio-group">
+                      <label><input type="radio" name="ncBudget" value="Budgeted" onchange="ncToggleBudgetCode()"> Budgeted</label>
+                      <label><input type="radio" name="ncBudget" value="Non-Budgeted" checked onchange="ncToggleBudgetCode()"> Non-Budgeted</label>
+                    </div>
+                    <div class="nc-budget-code" id="ncBudgetCodeBox" style="display: none;">
+                      <span class="nc-radio-label" style="min-width: auto;">Budget Code</span>
+                      <input type="text" class="cms-input nc-field" id="ncBudgetCode" placeholder="Enter Budget Code">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="nc-branch-dept-row">
+                  <div><span class="nc-radio-label">Branch</span> <strong id="ncBranchText"></strong></div>
+                  <div><span class="nc-radio-label">Department</span> <strong id="ncDeptText"></strong></div>
+                </div>
+
+                <!-- Manager Details -->
+                <div class="nc-manager-card">
+                  <div class="nc-manager-head">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    MANAGER DETAILS
+                  </div>
+                  <div class="nc-manager-body">
+                    <p class="nc-manager-hint">Added manager will be notified when this contract becomes Active, enters its Notice Period, or Expires. Leave it empty to skip these notifications.</p>
+                    <div class="nc-manager-grid">
+                      <div>
+                        <label class="detail-field-label">Branch</label>
+                        <select class="cms-select" id="ncMgrBranch" onchange="ncManagerCascade('branch')"><option value="">Select Branch</option></select>
+                      </div>
+                      <div>
+                        <label class="detail-field-label">Department</label>
+                        <select class="cms-select" id="ncMgrDept" onchange="ncManagerCascade('dept')" disabled><option value="">Select Department</option></select>
+                      </div>
+                      <div>
+                        <label class="detail-field-label">Role</label>
+                        <select class="cms-select" id="ncMgrRole" onchange="ncManagerCascade('role')" disabled><option value="">Select Role</option></select>
+                      </div>
+                      <div>
+                        <label class="detail-field-label">Manager</label>
+                        <select class="cms-select" id="ncMgrUser" disabled><option value="">Select Manager</option></select>
+                      </div>
+                    </div>
+                    <button class="btn-teal-primary" style="margin-top: 12px; padding: 6px 18px;" onclick="ncSaveManager()">Save</button>
+                    <div id="ncManagerSaved" class="nc-manager-saved"></div>
+                  </div>
+                </div>
+
+                <div class="nc-section-divider"></div>
+
+                <!-- Template-driven fields -->
+                <div class="nc-template-fields-title" id="ncTemplateFieldsTitle">Contract Draft Details</div>
+                <div id="ncTemplateFields" class="nc-template-fields">
+                  <!-- Rendered by ncRenderTemplateFields() -->
+                </div>
+
+                <div class="nc-section-divider"></div>
+                <div style="display: flex; justify-content: flex-end;">
+                  <button class="btn-teal-primary nc-submit-btn" id="ncSubmitBtn" onclick="ncSubmit()">Submit</button>
+                  <button class="btn-teal-primary nc-submit-btn" id="ncUpdateLetterBtn" style="display: none;" onclick="ncSubmit('letter')">Update Request Letter</button>
+                  <button class="btn-teal-primary nc-submit-btn" id="ncUpdateDraftBtn" style="display: none; margin-left: 10px;" onclick="ncSubmit('draft')">Update Contract Draft</button>
+                </div>
+              </div>
+
+              <!-- Tab 2: Primary Documents -->
+              <div id="ncPanelPrimary" style="display: none;">
+                <div id="ncPrimaryDocs">
+                  <!-- Rendered by ncRenderPrimaryDocs() -->
+                </div>
+              </div>
+
+              <!-- Tab 3: Supporting Documents -->
+              <div id="ncPanelSupporting" style="display: none;">
+                <label class="file-drop-zone" for="ncSupportingFileInput" id="ncDropZone">
+                  <div style="width: 48px; height: 48px; border-radius: 50%; background: #e6f4f2; display: flex; align-items: center; justify-content: center; color: #008272;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  </div>
+                  <div style="font-size: 14px; font-weight: 700; color: #008272;">Browse</div>
+                  <div style="font-size: 12px; color: #64748b;">Drag &amp; drop file here, or browse</div>
+                  <div style="font-size: 11px; color: #94a3b8;">Supports: Docx, Pdf, Xlsx, Ppt, etc. (Max 50MB)</div>
+                </label>
+                <input type="file" id="ncSupportingFileInput" multiple style="display: none;" onchange="ncAddSupportingFiles(this.files); this.value='';">
+                <div id="ncSupportingList" class="nc-supporting-list"></div>
+              </div>
+
+              <!-- Tab 4: Contract History (existing contracts only) -->
+              <div id="ncPanelContractHistory" style="display: none;">
+                <div id="ncContractHistoryList"></div>
+              </div>
+
+              <!-- Tab 5: Approval History -->
+              <div id="ncPanelHistory" style="display: none;">
+                <div id="ncHistoryList"></div>
+              </div>
+            </div>
+
+            <!-- Right Sidebar: Approver Comments -->
+            <div class="review-right-panel" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; align-self: start;">
+              <div style="font-size: 12px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase;">APPROVER COMMENTS</div>
+              <div id="ncApproverComments" style="font-size: 11.5px; color: #64748b; margin-top: 6px; line-height: 1.5;">
+                This section becomes available once the contract is submitted for approval. Approver comments will appear here during review.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           VIEW 16: EDIT DRAFT CONTENT (#/edit-document)
+           Word-style editor for the generated contract draft
+           =================================================================== -->
+      <section id="view-nc-doc-editor" class="cms-view-section" style="display: none;">
+        <div class="nc-word-shell">
+          <div class="nc-word-menubar">
+            <span>File</span><span>Home</span><span>Insert</span><span>Layout</span><span>References</span><span class="active">Review</span><span>View</span><span>Help</span>
+            <div style="margin-left: auto; display: flex; gap: 8px;">
+              <button class="btn-outline-teal" style="padding: 4px 12px; font-size: 12px;" onclick="ncCloseDocEditor()">Close</button>
+              <button class="btn-teal-primary" style="padding: 4px 14px; font-size: 12px;" onclick="ncSaveDocEditor()">Save</button>
+            </div>
+          </div>
+          <div class="nc-word-toolbar">
+            <button onclick="document.execCommand('bold')"><b>B</b></button>
+            <button onclick="document.execCommand('italic')"><i>I</i></button>
+            <button onclick="document.execCommand('underline')"><u>U</u></button>
+            <span class="nc-word-sep"></span>
+            <button onclick="document.execCommand('insertUnorderedList')">• List</button>
+            <button onclick="document.execCommand('justifyLeft')">Left</button>
+            <button onclick="document.execCommand('justifyCenter')">Center</button>
+            <span class="nc-word-sep"></span>
+            <span class="nc-word-status" id="ncWordStatus">Editing · Contract Draft</span>
+          </div>
+          <div class="nc-word-canvas">
+            <div class="nc-word-page" id="ncWordPage" contenteditable="true" spellcheck="false"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       4. MODALS & POPUPS
+       ========================================================================= -->
+
+  <!-- Modal A: New Contract / Request Modal (matching Screenshot 03) -->
+  <div class="modal-overlay" id="newContractModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="newContractModalTitle">New Contract</h3>
+        <button class="btn-close-modal" onclick="closeModal('newContractModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label" for="modalBranchSelect">Branch</label>
+          <select id="modalBranchSelect" class="cms-select">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="modalDeptSelect">Department</label>
+          <select id="modalDeptSelect" class="cms-select">
+            <option value="">Select Department</option>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="modalTypeSelect">Contract Type</label>
+          <select id="modalTypeSelect" class="cms-select">
+            <option value="">Select Contract Type</option>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div id="modalExtraFields">
+        <div class="modal-field">
+          <label class="modal-label" for="modalVendorSelect">Vendor Partner</label>
+          <select id="modalVendorSelect" class="cms-select">
+            <option value="">Select Enterprise Vendor</option>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="modalContractTitleInput">Contract Title</label>
+          <input type="text" id="modalContractTitleInput" class="cms-input" placeholder="e.g. Innomick Kubernetes Multi-Cloud SLA 2026">
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="modalAmountInput">Estimated Contract Value (USD)</label>
+          <input type="number" id="modalAmountInput" class="cms-input" placeholder="e.g. 150000">
+        </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-teal-primary" style="width: 100%; justify-content: center; padding: 12px;" onclick="submitNewContract()">
+          Create New Contract
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal IMP-1: Manual Import (Branch / Department) -->
+  <div class="modal-overlay" id="impManualModal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Manual Import</h3>
+        <button class="btn-close-modal" onclick="closeModal('impManualModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label" for="impBranchSelect">Branch *</label>
+          <select id="impBranchSelect" class="cms-select" disabled></select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="impDeptSelect">Department *</label>
+          <select id="impDeptSelect" class="cms-select"></select>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: center;">
+        <button class="btn-teal-primary" style="padding: 8px 40px;" onclick="impContinue()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-0: Info popup after submit -->
+  <div class="modal-overlay" id="ncInfoModal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Info</h3>
+        <button class="btn-close-modal" onclick="ncCloseInfo()">&times;</button>
+      </div>
+      <div class="modal-body nc-info-body" id="ncInfoMessage">Contract Submitted and Documents Generated!</div>
+      <div class="modal-footer" id="ncInfoFooter" style="display: none; justify-content: flex-end;">
+        <button class="btn-teal-primary" style="padding: 7px 30px;" onclick="ncCloseInfo()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-A: Approver review (Approve / Request Change / Reject) -->
+  <div class="modal-overlay" id="ncApproverModal">
+    <div class="modal-box" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Approval Review</h3>
+        <button class="btn-close-modal" onclick="closeModal('ncApproverModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="ncApproverBody"></div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn-outline-teal" style="color: #b91c1c; border-color: #fca5a5;" onclick="ncApproverAction('Reject')">&#10005; Reject</button>
+        <button class="btn-outline-teal" style="color: #b45309; border-color: #fcd34d;" onclick="ncApproverAction('Request Change')">Request Change</button>
+        <button class="btn-teal-primary" onclick="ncApproverAction('Approve')">&#10003; Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-R: Approver remarks (Approval / Reject / Request Change) -->
+  <div class="modal-overlay" id="ncRemarksModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ncRemarksTitle">Approval</h3>
+        <button class="btn-close-modal" onclick="closeModal('ncRemarksModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label class="detail-field-label" id="ncRemarksLabel" style="display:block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Approval Remarks</label>
+        <textarea class="cms-input" id="ncRemarksText" rows="5" style="width: 100%; box-sizing: border-box;" placeholder="Add remarks here..."></textarea>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn-outline-teal" onclick="closeModal('ncRemarksModal')">Cancel</button>
+        <button class="btn-teal-primary" onclick="ncRemarksSubmit()">&#10003; Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-1: Start Approval - shows the configured approval chain -->
+  <div class="modal-overlay" id="ncStartApprovalModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ncStartApprovalTitle">View Approval</h3>
+        <button class="btn-close-modal" onclick="closeModal('ncStartApprovalModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="ncStartApprovalBody">
+        <!-- Rendered by ncOpenStartApproval() / ncViewWorkflow() -->
+      </div>
+      <div class="modal-footer nc-approval-footer">
+        <label class="nc-toggle-label">Final Approval
+          <input type="checkbox" id="ncFinalApprovalToggle" class="nc-toggle">
+        </label>
+        <button class="btn-outline-teal" onclick="closeModal('ncStartApprovalModal')">Cancel</button>
+        <button class="btn-teal-primary" id="ncStartApprovalBtn" onclick="ncConfirmStartApproval()">Start Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-2: Select Approval - Sequential / Parallel workflow picker -->
+  <div class="modal-overlay" id="ncSelectApprovalModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ncSelectApprovalTitle">Select Approval</h3>
+        <button class="btn-close-modal" onclick="closeModal('ncSelectApprovalModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="ncSelectApprovalBody">
+        <!-- Rendered by ncOpenSelectApproval() -->
+      </div>
+      <div class="modal-footer" id="ncSelectApprovalFooter" style="display: flex; justify-content: flex-end; gap: 8px;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal NC-3: Document preview (Open in Browser) -->
+  <div class="modal-overlay" id="ncDocPreviewModal">
+    <div class="wv-frame">
+      <div class="wv-titlebar">
+        <strong id="ncDocPreviewTitle">Document.docx</strong>
+        <button class="btn-teal-primary wv-close" onclick="closeModal('ncDocPreviewModal')">&times; Close</button>
+      </div>
+      <div class="wv-appbar">
+        <span class="wv-waffle">&#8943;</span>
+        <span class="tpl-view-word">W</span>
+        <span id="ncDocPreviewFile" class="wv-file"></span>
+        <div class="wv-search">&#9906; Search for tools, help, and more (Alt + Q)</div>
+        <span class="wv-avatar">MA</span>
+      </div>
+      <div class="wv-tabs">
+        <span>File</span><span>Home</span><span>Insert</span><span>Layout</span><span>References</span><span class="active">Review</span><span>View</span><span>Help</span><span class="wv-tab-table">Table</span>
+        <span class="wv-tabs-right"><span class="wv-pill">&#128172; Comments</span><span class="wv-pill">Catch up</span><span class="wv-pill wv-blue">Reviewing &#8964;</span><span class="wv-pill wv-blue">Share &#8964;</span></span>
+      </div>
+      <div class="wv-toolbar">
+        <span>&#9998; Editor &#8964;</span><span>Spelling &amp; Grammar &#8964;</span><span>Word Count &#8964;</span><span>Check Accessibility</span><span class="wv-dim">Mark All as Read</span><span>Translate &#8964;</span><span>New Comment</span><span class="wv-boxed">Show Comments</span><span class="wv-dim">Filter &#8964;</span><span>Markup view &#8964;</span><span class="wv-dim">Track Changes &#8964;</span>
+      </div>
+      <div class="wv-canvas">
+        <div class="wv-page" id="ncDocPreviewPage"></div>
+      </div>
+      <div class="wv-status">
+        <span id="ncDocPreviewWords">Page 1 of 1</span>
+        <span class="wv-status-right">&#8722; &nbsp;&#9644;&#9644;&#9679;&#9644;&#9644;&nbsp; + &nbsp; 100% &nbsp; Fit &nbsp; Give Feedback to Microsoft</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B: Create Contract Template (matching Screenshot 08) -->
+  <div class="modal-overlay" id="createTemplateModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">New Contract Template</h3>
+        <button class="btn-close-modal" onclick="closeModal('createTemplateModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <select id="modalTemplateTypeSelect" class="cms-select" aria-label="Select Contract Type">
+            <option value="">Select Contract Type</option>
+            <option value="Service">Service</option>
+            <option value="Purchase">Purchase</option>
+            <option value="Construction">Construction</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer align-right">
+        <button class="btn-teal-primary" onclick="submitCreateTemplate()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal B2: Create Approval Template Modal -->
+  <div class="modal-overlay" id="createApprovalTemplateModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">New Approval Template</h3>
+        <button class="btn-close-modal" onclick="closeModal('createApprovalTemplateModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label" for="modalAppTemplateNameInput">Approval Template Name</label>
+          <input type="text" id="modalAppTemplateNameInput" class="cms-input" placeholder="e.g. IT Department Sequential Approval">
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="modalAppTemplateTypeSelect">Routing Logic</label>
+          <select id="modalAppTemplateTypeSelect" class="cms-select">
+            <option value="Sequential">Sequential (One step after another)</option>
+            <option value="Parallel">Parallel (All approvers in stage simultaneously)</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="modalAppTemplateStagesInput">Number of Approval Stages</label>
+          <input type="number" id="modalAppTemplateStagesInput" class="cms-input" value="2" min="1" max="5">
+        </div>
+      </div>
+      <div class="modal-footer align-right">
+        <button class="btn-teal-primary" onclick="submitCreateApprovalTemplate()">Create Template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal C: Contract Details / Full View Modal -->
+  <div class="modal-overlay" id="contractDetailsModal">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <h3 class="modal-title" id="detailsModalTitle">Contract Overview</h3>
+        <button class="btn-close-modal" onclick="closeModal('contractDetailsModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="detailsModalBody">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-footer align-right">
+        <button class="btn-filter-reset" onclick="closeModal('contractDetailsModal')">Close</button>
+        <button class="btn-teal-primary" onclick="downloadContractSummary()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export Summary
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal D: Import Wizard Modal -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="importModalTitle">Import Contracts</h3>
+        <button class="btn-close-modal" onclick="closeModal('importModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="importModalBodyContent">
+          <!-- Dynamic upload form -->
+        </div>
+      </div>
+      <div class="modal-footer align-right">
+        <button class="btn-filter-reset" onclick="closeModal('importModal')">Cancel</button>
+        <button class="btn-teal-primary" id="btnRunImport" onclick="executeImport()">Upload & Ingest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal E: Create Workflow Choice Modal (matching Screenshot 05) -->
+  <div class="modal-overlay" id="createWorkflowChoiceModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Workflow</h3>
+        <button class="btn-close-modal" onclick="closeModal('createWorkflowChoiceModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 24px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <!-- Sequential Workflow Card -->
+          <div class="import-action-card" style="cursor: pointer; text-align: center; border: 1.5px solid #008272; background: #f0fdfa;" onclick="openSequentialWorkflowBuilder('sequential')">
+            <div style="width: 44px; height: 44px; border-radius: 8px; background: #008272; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="18" r="3"></circle>
+                <circle cx="6" cy="6" r="3"></circle>
+                <path d="M6 21V9a9 9 0 0 0 9 9"></path>
+              </svg>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #008272;">Sequential Workflow</div>
+          </div>
+
+          <!-- Parallel Workflow Card -->
+          <div class="import-action-card" style="cursor: pointer; text-align: center; border: 1.5px solid #cbd5e1;" onclick="openSequentialWorkflowBuilder('parallel')">
+            <div style="width: 44px; height: 44px; border-radius: 8px; background: #e6f4f2; color: #008272; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="6" cy="6" r="3"></circle>
+                <circle cx="18" cy="18" r="3"></circle>
+                <circle cx="18" cy="6" r="3"></circle>
+                <path d="M6 9v12"></path>
+                <path d="M9 6h6"></path>
+              </svg>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #334155;">Parallel Workflow</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button class="btn-filter-reset" onclick="closeModal('createWorkflowChoiceModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal F: Sequential Workflow Builder Modal (matching Screenshot 11) -->
+  <div class="modal-overlay" id="individualWorkflowModal">
+    <div class="modal-box wide" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-icon-subtle" onclick="closeModal('individualWorkflowModal'); openModal('createWorkflowChoiceModal');">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <h3 class="modal-title">Individual Workflow</h3>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('individualWorkflowModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="modal-field">
+          <label class="modal-label">Template Name</label>
+          <input type="text" class="cms-input" id="wfTemplateName" placeholder="Enter Template Name" value="Innomick Enterprise Sequential Review">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="modal-field">
+            <label class="modal-label">Requestor Branch</label>
+            <select class="cms-select" id="wfBranchSelect">
+              <option value="">Please Select Branch</option>
+              <option selected>Innomick Technologies - HQ</option>
+              <option>Innomick Dubai Tech Center</option>
+              <option>Innomick Riyadh Regional</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label class="modal-label">Requestor Department</label>
+            <select class="cms-select" id="wfDeptSelect">
+              <option value="">Please Select Department</option>
+              <option selected>Information Technology</option>
+              <option>Medical Insurance</option>
+              <option>Facilities Management</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label">Due Days (For Each Person)</label>
+          <input type="number" class="cms-input" id="wfDueDays" value="2" min="1" max="30">
+        </div>
+
+        <!-- Dynamic Steps Container -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #1e293b;">Workflow Routing Stages</h4>
+        </div>
+        <div id="workflowStepsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Step 1 Card -->
+          <div class="workflow-step-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: #008272; margin-bottom: 10px;">Step 1</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="modal-field">
+                <label class="modal-label">Step Name</label>
+                <input type="text" class="cms-input" placeholder="Enter Step Name" value="Initial Legal & Technical Review">
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 12px; font-weight: 600; color: #475569;">Internal Organization Approver</span>
+                <input type="checkbox" checked style="accent-color: #008272; width: 18px; height: 18px;">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="modal-field">
+                  <label class="modal-label">Selection Mode</label>
+                  <select class="cms-select">
+                    <option selected>Search by Name</option>
+                    <option>Role Based</option>
+                  </select>
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Approver</label>
+                  <select class="cms-select">
+                    <option selected>Arjun Mehta</option>
+                    <option>Sara Thomas</option>
+                    <option>Imran Hussain</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-field">
+                <label class="modal-label">Approver Email</label>
+                <input type="text" class="cms-input" readonly value="arjun.mehta@innomicktechnologies.com" style="background: #e2e8f0;">
+              </div>
+              <div class="modal-field">
+                <label class="modal-label">Action</label>
+                <input type="text" class="cms-input" readonly value="Review & Approve" style="background: #e2e8f0;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-outline-teal" style="width: 100%; justify-content: center; border-style: dashed; padding: 10px;" onclick="addWorkflowStepItem()">
+          + Add Step
+        </button>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-filter-reset" onclick="closeModal('individualWorkflowModal')">Cancel</button>
+        <button class="btn-teal-primary" onclick="submitIndividualWorkflow()">Submit Workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal G: Approval History Modal (matching Screenshot 02) -->
+  <div class="modal-overlay" id="approvalHistoryModal">
+    <div class="modal-box" style="max-width: 520px; padding: 0; overflow: hidden;">
+      <div style="background: #008272; color: #ffffff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 15px; font-weight: 700; color: #ffffff; margin: 0;">Approval History</h3>
+        <button style="background: none; border: none; color: #ffffff; font-size: 20px; cursor: pointer;" onclick="closeModal('approvalHistoryModal')">&times;</button>
+      </div>
+      <div style="padding: 24px;">
+        <div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">APPROVAL HISTORY</div>
+        <div style="font-size: 13px; color: #475569; margin-bottom: 24px;">No approval actions have been recorded for this document yet.</div>
+        <div style="text-align: center; color: #94a3b8; font-style: italic; font-size: 13px; padding: 30px 0; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1;">
+          No history to show
+        </div>
+      </div>
+      <div style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+        <button class="btn-filter-reset" onclick="closeModal('approvalHistoryModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal H: Contract Draft Document Approval Certificate Modal (matching Screenshot 04) -->
+  <div class="modal-overlay" id="approvalCertificateModal">
+    <div class="modal-box wide" style="max-width: 740px; padding: 0; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column;">
+      <div style="background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 14px; font-weight: 700; color: #1e293b;" id="certModalHeaderTitle">Approval Certificate - INM/MID/SVC/1750/2025</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-outline-teal" onclick="downloadContractSummary()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Download PDF
+          </button>
+          <button class="btn-teal-primary" onclick="closeModal('approvalCertificateModal')">Close</button>
+        </div>
+      </div>
+
+      <div style="padding: 30px; overflow-y: auto;">
+        <div class="certificate-view-card" style="box-shadow: none; border: 1px solid #e2e8f0; padding: 24px;">
+          <div class="certificate-header">
+            <img src="assets/innomick_logo_horizontal.png" alt="Innomick Technologies" style="max-height: 48px; margin-bottom: 10px;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">INNOMICK GROUP</div>
+            <h2 style="font-size: 18px; font-weight: 700; color: #008272; margin: 4px 0;">Contract Draft Document Approval Certificate</h2>
+            <div style="font-size: 12px; color: #64748b;" id="certModalRef">Certificate Ref: INM/MID/SVC/1750/2025-AMD</div>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">DOCUMENT OVERVIEW</div>
+          <table class="cert-overview-table">
+            <tbody>
+              <tr>
+                <td class="cert-th" style="width: 25%;">CONTRACT REFERENCE NUMBER</td>
+                <td style="width: 25%; font-weight: 600;" id="certTableRef">INM/MID/SVC/1750/2025</td>
+                <td class="cert-th" style="width: 25%;">CONTRACT NAME</td>
+                <td style="width: 25%; font-weight: 600;" id="certTableName">Medical TPA Services</td>
+              </tr>
+              <tr>
+                <td class="cert-th">CONTRACT TYPE</td>
+                <td id="certTableType">Service</td>
+                <td class="cert-th">REQUEST TYPE</td>
+                <td id="certTableReqType">Amendment</td>
+              </tr>
+              <tr>
+                <td class="cert-th">VENDOR NAME</td>
+                <td id="certTableVendor">Nova Trading Co.</td>
+                <td class="cert-th">CONTRACT VALUE</td>
+                <td style="font-weight: 700; color: #008272;" id="certTableValue">4,000 KWD</td>
+              </tr>
+              <tr>
+                <td class="cert-th">DEPARTMENT</td>
+                <td id="certTableDept">Medical Insurance</td>
+                <td class="cert-th">BRANCH</td>
+                <td id="certTableBranch">Innomick Technologies - HQ</td>
+              </tr>
+              <tr>
+                <td class="cert-th">NEW START DATE</td>
+                <td>—</td>
+                <td class="cert-th">NEW END DATE</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">DIGITAL APPROVAL CHAIN</div>
+          <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 24px; text-align: center; color: #64748b; font-size: 13px;" id="certApprovalChainText">
+            No approval actions recorded.
+          </div>
+
+          <div style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 24px;">
+            Generated: 26 October 2026 &bull; Innomick Technologies Secured Cryptographic Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal I: Reject Review Modal -->
+  <div class="modal-overlay" id="approvalRejectModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #dc2626;">Reject Approval Request</h3>
+        <button class="btn-close-modal" onclick="closeModal('approvalRejectModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: #475569; margin-bottom: 12px;">Please specify the reason for rejecting this contract document:</p>
+        <textarea class="cms-input" id="rejectReasonInput" rows="3" placeholder="Enter formal rejection justification..." style="width: 100%; font-size: 13px;"></textarea>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-filter-reset" onclick="closeModal('approvalRejectModal')">Cancel</button>
+        <button class="btn-outline-red" style="background:#dc2626; color:#fff;" onclick="submitRejectApproval()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal J: Request Change Modal -->
+  <div class="modal-overlay" id="approvalRequestChangeModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #ea580c;">Request Document Changes</h3>
+        <button class="btn-close-modal" onclick="closeModal('approvalRequestChangeModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: #475569; margin-bottom: 12px;">Specify the modifications required by the requestor:</p>
+        <textarea class="cms-input" id="requestChangeInput" rows="3" placeholder="Describe required revisions, clause amendments, or pricing updates..." style="width: 100%; font-size: 13px;"></textarea>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-filter-reset" onclick="closeModal('approvalRequestChangeModal')">Cancel</button>
+        <button class="btn-outline-orange" style="background:#ea580c; color:#fff;" onclick="submitRequestChange()">Submit Change Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal K: Manual Import Modal (matching Screenshot 09) -->
+  <div class="modal-overlay" id="manualImportModal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Manual Import</h3>
+        <button class="btn-close-modal" onclick="closeModal('manualImportModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="modal-field">
+          <label class="modal-label">Branch *</label>
+          <select class="cms-select" id="manualImportBranchSelect">
+            <option selected>Innomick Technologies - HQ</option>
+            <option>Innomick Dubai Tech Center</option>
+            <option>Innomick Riyadh Regional</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Department *</label>
+          <select class="cms-select" id="manualImportDeptSelect">
+            <option value="">Select Department</option>
+            <option selected>Information Technology</option>
+            <option>Medical Insurance</option>
+            <option>Facilities Management</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button class="btn-teal-primary" style="padding: 10px 28px;" onclick="submitManualImport()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       5. FLOATING COPILOT AI BUTTON
+       ========================================================================= -->
+  <div class="copilot-floating-pill" title="Microsoft 365 Copilot for Contract Management" onclick="toggleCopilotAssistant()">
+    <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+      <defs>
+        <linearGradient id="copilotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f46e5" />
+          <stop offset="50%" stop-color="#06b6d4" />
+          <stop offset="100%" stop-color="#f59e0b" />
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="14" fill="none" />
+      <path d="M16 14C16 11.79 17.79 10 20 10H28C30.21 10 32 11.79 32 14V22C32 24.21 30.21 26 28 26H20C17.79 26 16 24.21 16 22V14Z" fill="url(#copilotGrad)" opacity="0.9" />
+      <path d="M20 22C20 19.79 21.79 18 24 18H32C34.21 18 36 19.79 36 22V30C36 32.21 34.21 34 32 34H24C21.79 34 20 32.21 20 30V22Z" fill="#008272" opacity="0.8" />
+      <circle cx="24" cy="22" r="3" fill="#ffffff" />
+    </svg>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="cms_data.js"></script>
+  <script src="cms_uat_templates.js"></script>
+  <script src="cms_app.js"></script>
+  <script src="cms_newcontract.js"></script>
+  <script src="cms_contractdetail.js"></script>
+  <script src="cms_templates.js"></script>
+  <script src="cms_import.js"></script>
+  <script src="cms_ui.js"></script>
+  <script src="cms_shell.js"></script>
+  <script src="cms_ncapprove.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "innomick-cms-prototype",
+  "version": "1.0.0",
+  "description": "Innomick Technologies - Enterprise Contract Management System (CMS) Prototype",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "cms",
+    "contracts",
+    "sharepoint",
+    "contract-management",
+    "innomick",
+    "prototype"
+  ],
+  "author": "Innomick Technologies",
+  "license": "ISC"
+}

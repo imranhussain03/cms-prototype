@@ -1,0 +1,3 @@
+node_modules/
+# Reference captures of the client UAT system (client branding/data) - kept local only
+cms/screenshots/

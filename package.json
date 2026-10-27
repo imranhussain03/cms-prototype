@@ -1,0 +1,19 @@
+{
+  "name": "innomick-cms-prototype",
+  "version": "1.0.0",
+  "description": "Innomick Technologies - Enterprise Contract Management System (CMS) SharePoint Prototype",
+  "scripts": {
+    "start": "node cms/server.js",
+    "dev": "node cms/server.js"
+  },
+  "keywords": [
+    "cms",
+    "contracts",
+    "sharepoint",
+    "contract-management",
+    "innomick",
+    "prototype"
+  ],
+  "author": "Innomick Technologies",
+  "license": "ISC"
+}
