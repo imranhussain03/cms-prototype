@@ -4,13 +4,22 @@
  * laid out like the live "document approval" page.
  */
 
-const NCApprove = { item: null, tab: 'reviews' };
+const NCApprove = { item: null, tab: 'reviews', fromInbox: false };
+
+// Outbox, history and "Approval Details" open the read-only status view
+function ncOpenApprovalView(id) { NCApprove.fromInbox = false; switchRoute('nc_approve', id); }
 
 function ncApproveContext(inboxId) {
-  const item = InnomickCMSData.approvals.inbox.find(i => i.id === inboxId) || NCApprove.item;
-  if (!item) return null;
-  const rec = NCState.records[item.ncRequestId];
-  return rec ? { item, rec, doc: rec.docs[item.ncDoc] } : null;
+  const m = String(inboxId || '').match(/^NCAPP-(.+)-(letter|draft)$/);
+  if (!m) return null;
+  const rec = NCState.records[m[1]];
+  if (!rec || !rec.docs[m[2]] || !rec.docs[m[2]].cycle) return null;
+  const inboxItem = InnomickCMSData.approvals.inbox.find(i => i.id === inboxId);
+  const item = inboxItem || {
+    id: inboxId, ncRequestId: m[1], ncDoc: m[2],
+    name: `${rec.refNo.replace(/\//g, '-')} ${m[2] === 'letter' ? 'Request Letter' : 'Draft'}.docx`
+  };
+  return { item, rec, doc: rec.docs[m[2]], canDecide: !!inboxItem };
 }
 
 function ncRenderApprovePage(inboxId) {
@@ -25,8 +34,10 @@ function ncRenderApprovePage(inboxId) {
   const fmtLong = d => new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
   const due = new Date(c.started); due.setDate(due.getDate() + 2);
   const current = c.steps.find(s => s.state === 'Pending');
+  const canDecide = ctx.canDecide && NCApprove.fromInbox && !!current;
+  const progressPct = Math.round((c.done / c.steps.length) * 100);
   const reqType = rec.mode ? NC_MODES[rec.mode].requestType : 'New';
-  const docType = `${reqType} ${item.ncDoc === 'letter' ? 'Request Letter Draft' : 'Contract Draft'}`;
+  const docType = `${reqType} ${item.ncDoc === 'letter' ? 'Request Letter Draft' : 'Contract'}`;
   const comments = (rec.comments || []).filter(cm => cm.doc === NC_DOC_META[item.ncDoc].title);
   const side = (label, value) => `<div class="ap-side-field"><label>${label}</label><div>${value || '—'}</div></div>`;
   const stepState = (s, i) => {
@@ -70,8 +81,12 @@ function ncRenderApprovePage(inboxId) {
 
       <main class="ap-main">
         <div class="ap-decision">
-          <div><strong>Your decision</strong><span>${current ? 'You are the current approver for this document' : 'This approval cycle is complete'}</span></div>
-          ${current ? `<div class="ap-decision-btns">
+          ${canDecide ? `<div><strong>Your decision</strong><span>You are the current approver for this document</span></div>` : `
+          <div><strong>Approval Status: <span class="ap-status-${doc.status.replace(/\s+/g, '')}">${doc.status}</span></strong>
+            <span>${current ? `Waiting for ${current.approver} (${current.title})` : 'This approval cycle is complete'}</span></div>
+          <div class="ap-progress"><div class="approval-progress-bar-bg"><div class="approval-progress-bar-fill" style="width: ${progressPct}%;"></div></div>
+            <small>Approved ${c.done} of ${c.steps.length}</small></div>`}
+          ${canDecide ? `<div class="ap-decision-btns">
             <button class="ap-btn-reject" onclick="ncApproveAct('Reject')">&#10005; Reject</button>
             <button class="ap-btn-change" onclick="ncApproveAct('Request Change')">&#9998; Request Change</button>
             <button class="btn-teal-primary" onclick="ncApproveAct('Approve')">&#10003; Approve</button>
@@ -111,7 +126,7 @@ function ncRenderApprovePage(inboxId) {
                 <div class="ap-review ${s === current ? 'current' : ''}">
                   <div class="ap-review-head">
                     <span class="ap-dot ${s === current ? 'ring' : s.state === 'Approved' ? 'done' : ''}">${s.state === 'Approved' ? '&#10003;' : i + 1}</span>
-                    <div><b>Step ${i + 1}</b><small>${s.approver}</small>${s === current || s.state !== 'Pending' ? `<small>Assigned on ${ncFormatDateTime(new Date(c.started))}</small>` : ''}</div>
+                    <div><b>Step ${i + 1}</b><small>${s.approver}</small>${s.assignedOn ? `<small>Assigned on ${s.assignedOn}</small>` : ''}${s.actedOn ? `<small>Action taken on ${s.actedOn}</small>` : ''}</div>
                     <div class="ap-review-right"><span class="${cls}">${badge}</span><small>${sub}</small></div>
                   </div>
                   ${s === current || stepComments.length ? `<div class="ap-review-comments"><label>COMMENTS</label>
@@ -147,7 +162,7 @@ function ncApproveAddComment() {
   const box = document.getElementById('ncApproveComment');
   const step = ctx.doc.cycle.steps.find(s => s.state === 'Pending');
   ctx.rec.comments = ctx.rec.comments || [];
-  ctx.rec.comments.unshift({ by: step ? step.approver : InnomickCMSData.currentUser.name, on: ncFormatDateTime(new Date()), text: box.value.trim(), doc: NC_DOC_META[ctx.item.ncDoc].title });
+  ctx.rec.comments.unshift({ by: InnomickCMSData.currentUser.name, on: ncFormatDateTime(new Date()), text: box.value.trim(), doc: NC_DOC_META[ctx.item.ncDoc].title });
   ncRenderApprovePage(ctx.item.id);
   showToast('Comment added', 'success');
 }
@@ -200,11 +215,27 @@ function ncRemarksSubmit() {
 
 function ncApprovePrevious() {
   const ctx = ncApproveContext(NCApprove.item.id);
-  const past = ctx.rec.history.filter(h => h.doc === NC_DOC_META[ctx.item.ncDoc].title);
+  const cycles = ctx.rec.history.filter(h => h.doc === NC_DOC_META[ctx.item.ncDoc].title);
+  const badge = st => st === 'Approved' ? 'badge-approved' : /Reject|Change/.test(st) ? 'ap-badge-bad' : st === 'Pending' ? 'ap-badge-cur' : 'ap-badge-wait';
   const body = document.querySelector('#approvalHistoryModal .modal-box > div:nth-child(2)');
-  body.innerHTML = `<div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; margin-bottom: 12px;">PREVIOUS APPROVALS</div>` +
-    (past.length ? past.map(h => `<div class="cd-ah-card"><div class="cd-ah-head"><div><b>${h.workflow}</b><div class="cd-ah-meta">Started ${h.on}</div></div></div>
-      <div class="cd-ah-comments">${h.steps.map(s => `${s.title} · ${s.approver} — ${s.state}`).join('<br>')}</div></div>`).join('')
-      : '<p class="ap-empty">No previous approvals.</p>');
+  body.innerHTML = `<div style="font-size: 11px; font-weight: 700; color: #008272; letter-spacing: 0.5px; margin-bottom: 12px;">APPROVAL HISTORY</div>` +
+    (cycles.length ? cycles.map((h, ci) => `
+      <div class="ah-cycle">
+        <div class="ah-cycle-head"><b>${h.workflow}</b><span>${ci === 0 ? 'Current cycle' : 'Cycle ' + (cycles.length - ci)} &middot; Started ${h.on}</span></div>
+        ${h.steps.map(st => `
+          <div class="cd-ah-card">
+            <div class="cd-ah-head">
+              <span class="cd-chain-dot" style="position: static; ${st.state === 'Approved' ? '' : 'border-color:#cbd5e1;color:#94a3b8;'}">${st.state === 'Approved' ? '&#10003;' : '&#8226;'}</span>
+              <div>
+                <div style="font-weight: 700;">${st.approver}</div>
+                <div class="cd-ah-meta">${st.title}${st.assignedOn ? `<br>Assigned on ${st.assignedOn}` : ''}${st.actedOn ? `<br>Action taken on ${st.actedOn}` : ''}</div>
+              </div>
+              <span class="${badge(st.state)}" style="margin-left: auto;">${st.state}</span>
+            </div>
+            <div class="cd-ah-comments"><div>COMMENTS</div>${st.remarks ? st.remarks : '<em>No comments</em>'}</div>
+          </div>`).join('')}
+      </div>`).join('')
+      : '<p class="ap-empty">No history to show</p>');
   openModal('approvalHistoryModal');
 }
+

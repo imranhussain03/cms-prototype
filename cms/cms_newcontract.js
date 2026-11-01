@@ -452,7 +452,7 @@ function ncOpenDetails(id) {
 
   const badge = document.getElementById('ncStatusBadge');
   badge.textContent = rec.status;
-  badge.className = rec.status === 'In Approval' ? 'badge-in-approval' : 'badge-draft';
+  badge.className = rec.status === 'In Approval' ? 'badge-in-approval' : rec.status === 'Rejected' ? 'badge-rejected' : ['Approved', 'Active'].includes(rec.status) ? 'badge-approved' : 'badge-draft';
   ncShowSubmitButtons();
 
   document.querySelectorAll('#view-nc-details .nc-invalid').forEach(el => el.classList.remove('nc-invalid'));
@@ -730,11 +730,12 @@ function ncSubmit(which) {
   const rec = NCState.current;
   const f = rec.form;
   const firstTime = !rec.submitted;
+  if (!ncDocKeys(rec).length) { ncSubmitDirect(rec); return; }
   rec.submitted = true;
 
   const now = new Date();
   const stamp = now.toISOString().slice(0, 10);
-  (which ? [which] : ['letter', 'draft']).forEach(key => {
+  (which ? [which] : ncDocKeys(rec)).forEach(key => {
     if (!rec.docs[key]) {
       rec.docs[key] = {
         status: 'Draft', submitted: stamp, customHtml: null,
@@ -800,6 +801,15 @@ function ncShowSubmitButtons() {
 // ---------------------------------------------------------------------------
 // Primary Documents
 // ---------------------------------------------------------------------------
+// Which generated documents each request type has (from the live document metadata)
+const NC_MODE_DOCS = { new: ['letter', 'draft'], renew: ['letter'], cancel: ['letter'], amend: ['letter', 'draft'], extension: [], completion: [] };
+function ncDocKeys(rec) { return NC_MODE_DOCS[rec.mode || 'new'] || ['letter', 'draft']; }
+function ncDocTitle(rec, key) {
+  const t = rec.mode ? NC_MODES[rec.mode].requestType.toUpperCase() + ' ' : '';
+  if (key === 'letter') return `${t}CONTRACT REQUEST LETTER`;
+  return rec.mode === 'amend' ? 'AMENDMENT CONTRACT' : 'CONTRACT DRAFT';
+}
+
 const NC_DOC_META = {
   letter: { title: 'CONTRACT REQUEST LETTER', empty: 'No Contract Request Letter has been generated yet', emptySub: 'Fill in the contract details and submit the form to generate the Contract Request Letter.' },
   draft: { title: 'CONTRACT DRAFT', empty: 'No Contract Draft has been generated yet', emptySub: 'Fill in the contract details and submit the form to generate the Contract Draft.' }
@@ -810,7 +820,7 @@ function ncRenderPrimaryDocs() {
   const wrap = document.getElementById('ncPrimaryDocs');
   if (!wrap || !rec) return;
 
-  wrap.innerHTML = ['letter', 'draft'].map(key => {
+  wrap.innerHTML = ncDocKeys(rec).map(key => {
     const meta = NC_DOC_META[key];
     const doc = rec.docs[key];
     const icon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
@@ -818,7 +828,7 @@ function ncRenderPrimaryDocs() {
     if (!doc) {
       return `
         <div class="nc-doc-card">
-          <div class="nc-doc-card-head"><span class="nc-doc-card-title">${icon} ${meta.title}</span></div>
+          <div class="nc-doc-card-head"><span class="nc-doc-card-title">${icon} ${ncDocTitle(rec, key)}</span></div>
           <div class="nc-doc-empty">
             <div class="nc-doc-empty-title">${meta.empty}</div>
             <div class="nc-doc-empty-sub">${meta.emptySub}</div>
@@ -827,18 +837,21 @@ function ncRenderPrimaryDocs() {
     }
 
     const inApproval = doc.status === 'In Approval' || doc.finalApproved;
-    const statusClass = doc.status === 'Approved' ? 'badge-approved' : doc.status === 'In Approval' ? 'badge-in-approval' : 'badge-draft';
-    const approvalBtn = inApproval
-      ? `<button class="btn-outline-teal nc-doc-btn" onclick="NCState.historyDoc = '${key}'; ncRenderHistory(); ncSwitchTab('history')">Approval Details &#8599;</button>`
-      : key === 'letter'
+    const statusClass = doc.status === 'Approved' ? 'badge-approved' : doc.status === 'In Approval' || doc.status === 'Request for Change' ? 'badge-in-approval' : doc.status === 'Rejected' ? 'badge-rejected' : 'badge-draft';
+    // UAT: after Request for Change the document can be re-sent, and its last cycle stays viewable
+    const detailsBtn = doc.cycle ? `<button class="btn-outline-teal nc-doc-btn" onclick="ncOpenApprovalView('NCAPP-${rec.id}-${key}')">Approval Details &#8599;</button>` : '';
+    const approvalBtn = inApproval || rec.status === 'Rejected'
+      ? detailsBtn
+      : (key === 'letter'
         ? `<button class="btn-teal-primary nc-doc-btn" onclick="ncOpenStartApproval('${key}')">Start Approval</button>`
-        : `<button class="btn-teal-primary nc-doc-btn" onclick="ncOpenSelectApproval('${key}')">Select Approvals</button>`;
+        : `<button class="btn-teal-primary nc-doc-btn" onclick="ncOpenSelectApproval('${key}')">Select Approvals</button>`) + detailsBtn;
 
     const versionsOpen = NCState.openVersionPanel === key;
+    if (doc.finalApproved) return ncApprovedDocCard(rec, key, doc, icon, versionsOpen);
     return `
       <div class="nc-doc-card">
         <div class="nc-doc-card-head">
-          <span class="nc-doc-card-title">${icon} ${meta.title}</span>
+          <span class="nc-doc-card-title">${icon} ${ncDocTitle(rec, key)}</span>
           <span class="nc-doc-head-right"><span class="${statusClass} nc-doc-pill">${doc.status}</span>
           <button class="nc-doc-chevron" title="Collapse" onclick="this.closest('.nc-doc-card').classList.toggle('collapsed')">&#8964;</button></span>
         </div>
@@ -863,7 +876,6 @@ function ncRenderPrimaryDocs() {
                 <button onclick="ncDownloadDoc('${key}', true)">Open in Desktop App</button>
               </div>
             </div>
-            ${doc.cycle ? `<button class="btn-teal-primary nc-doc-btn" onclick="ncViewCertificate('${key}')">&#128737; View Certificate</button>` : ''}
           </div>
         </div>
         ${doc.cycle ? ncApprovalChainHtml(doc) : ''}
@@ -945,8 +957,7 @@ function ncDocHtml(key) {
       <p>${rec.modeValues.justification || ''}</p>`;
   }
 
-  const design = key === 'draft' && rec.template && rec.template.design && window.UAT_TEMPLATES
-    ? UAT_TEMPLATES.designs[rec.template.design] : null;
+  const design = key === 'draft' ? tplDesignHtml(rec.template) : null;
   if (design) {
     const vals = rec.form.templateValues;
     const fmt = (fd, v) => fd && fd.type === 'date' && v ? v.split('-').reverse().join('-') : v;
@@ -1212,14 +1223,16 @@ function ncConfirmStartApproval() {
   rec.status = 'In Approval';
 
   const now = ncFormatDateTime(new Date());
+  const cycleId = `CY-${Date.now()}`;
   rec.history.unshift({
-    doc: NC_DOC_META[key].title, workflow: `${wf.name} (${wf.type})`, on: now,
-    steps: wf.steps.map((s, i) => ({ ...s, state: i === 0 || wf.type === 'Parallel' ? 'Pending' : 'Waiting' }))
+    id: cycleId, doc: NC_DOC_META[key].title, workflow: `${wf.name} (${wf.type})`, on: now, version: (doc.versions[0] || {}).version || '1.0',
+    steps: wf.steps.map((s, i) => ({ ...s, state: i === 0 || wf.type === 'Parallel' ? 'Pending' : 'Waiting', assignedOn: i === 0 || wf.type === 'Parallel' ? now : '' }))
   });
 
   const row = InnomickCMSData.requests.find(r => r.id === rec.id);
   if (row) row.status = 'In Approval';
 
+  InnomickCMSData.approvals.outbox = InnomickCMSData.approvals.outbox.filter(o => o.id !== `OUT-${rec.id}-${key}`);
   InnomickCMSData.approvals.outbox.unshift({
     id: `OUT-${rec.id}-${key}`,
     contractCode: rec.refNo,
@@ -1230,12 +1243,15 @@ function ncConfirmStartApproval() {
     submittedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: wf.type === 'Parallel' ? `${wf.steps.length} Approvals Pending` : wf.steps[0].title,
     ncRequestId: rec.id,
+    ncDoc: key,
+    cycleId,
     approvalType: wf.type,
     totalSteps: wf.steps.length,
     requestedOn: new Date().toISOString().slice(0, 10)
   });
 
-  doc.cycle = { steps: wf.steps.map(s => ({ ...s, state: 'Pending' })), done: 0, type: wf.type, history: rec.history[0], started: new Date() };
+  doc.cycle = { id: cycleId, name: wf.name, steps: wf.steps.map(s => ({ ...s, state: 'Pending', assignedOn: now })), done: 0, type: wf.type, started: new Date().toISOString() };
+  if (wf.type === 'Sequential') doc.cycle.steps.forEach((st, i) => { if (i > 0) { st.state = 'Waiting'; st.assignedOn = ''; } });
   const inboxId = `NCAPP-${rec.id}-${key}`;
   InnomickCMSData.approvals.inbox = InnomickCMSData.approvals.inbox.filter(i => i.id !== inboxId);
   InnomickCMSData.approvals.inbox.unshift({
@@ -1355,7 +1371,7 @@ function ncRenderApproverComments() {
   const el = document.getElementById('ncApproverComments');
   if (!el) return;
   if (rec.comments && rec.comments.length) {
-    el.innerHTML = rec.comments.map(c => `<div class="nc-comment"><strong>${c.by}</strong> · ${c.doc}<div>${c.text}</div><small>${c.on}</small></div>`).join('');
+    el.innerHTML = rec.comments.map(c => `<div class="nc-comment"><strong>${c.by}</strong><div>${c.text}</div><small>${c.on}</small></div>`).join('');
     return;
   }
   el.innerHTML = rec.status === 'In Approval'
@@ -1425,51 +1441,115 @@ function ncApproverAction(action) {
   const rec = NCState.records[item.ncRequestId];
   const doc = rec.docs[item.ncDoc];
   const comment = document.getElementById('ncApproverComment').value.trim();
-  const step = doc.cycle.steps.find(s => s.state === 'Pending');
+  const cycle = doc.cycle;
+  const step = cycle.steps.find(s => s.state === 'Pending');
+  if (!step) return;
   if (action !== 'Approve' && !comment) {
     showToast('Please add a comment', 'info');
     return;
   }
+  const now = ncFormatDateTime(new Date());
   rec.comments = rec.comments || [];
-  if (comment) rec.comments.unshift({ by: step ? step.approver : '', on: ncFormatDateTime(new Date()), text: comment, doc: NC_DOC_META[item.ncDoc].title });
+  // Decision remarks stay on the approval step; only Add Comment entries appear under Approver Comments (UAT)
 
-  const inbox = InnomickCMSData.approvals.inbox;
-  const removeItem = () => { InnomickCMSData.approvals.inbox = inbox.filter(i => i.id !== item.id); };
-  const histStep = doc.cycle.history && doc.cycle.history.steps.find(s => s.title === step.title && s.approver === step.approver);
+  const hist = rec.history.find(h => h.id === cycle.id);
+  const histStep = st => hist && hist.steps.find(x => x.title === st.title && x.approver === st.approver);
+  const setState = (st, state) => { st.state = state; const h = histStep(st); if (h) { h.state = state; h.actedOn = st.actedOn; h.remarks = st.remarks; h.assignedOn = st.assignedOn || h.assignedOn; } };
 
+  step.actedOn = now;
+  step.remarks = comment && comment !== '-' ? comment : '';
   if (action === 'Approve') {
-    step.state = 'Approved';
-    if (histStep) histStep.state = 'Approved';
-    doc.cycle.done++;
-    item.approvedCount = doc.cycle.done;
-    const next = doc.cycle.steps.find(s => s.state === 'Pending');
-    if (next) {
-      item.status = doc.cycle.type === 'Parallel' ? `${doc.cycle.steps.length - doc.cycle.done} Approvals Pending` : next.title;
-      const nh = doc.cycle.history && doc.cycle.history.steps.find(s => s.title === next.title);
-      if (nh) nh.state = 'Pending';
-    } else {
-      removeItem();
+    setState(step, 'Approved');
+    cycle.done++;
+    const next = cycle.steps.find(s => s.state === 'Waiting' || s.state === 'Pending');
+    if (next && next.state === 'Waiting') { next.assignedOn = now; setState(next, 'Pending'); }
+    if (!cycle.steps.some(s => s.state === 'Pending')) {
       doc.status = 'Approved';
-      if (doc.finalApproval) {
-        doc.finalApproved = true;
-        if (item.ncDoc === 'draft') ncActivateContract(rec);
-      }
+      doc.approvedOn = now;
+      if (doc.finalApproval) doc.finalApproved = true;
     }
   } else {
-    step.state = action === 'Reject' ? 'Rejected' : 'Request for Change';
-    if (histStep) histStep.state = step.state;
+    setState(step, action === 'Reject' ? 'Rejected' : 'Request for Change');
+    cycle.steps.filter(s => s.state === 'Waiting' || s.state === 'Pending').forEach(s => setState(s, 'Cancelled'));
     doc.status = action === 'Reject' ? 'Rejected' : 'Request for Change';
-    removeItem();
   }
 
-  const stillOpen = Object.values(rec.docs).some(d => d.status === 'In Approval');
-  if (!stillOpen && rec.status === 'In Approval') rec.status = 'Draft';
-  const reqRow = InnomickCMSData.requests.find(r => r.id === rec.id);
-  if (reqRow && rec.status !== 'Approved') reqRow.status = stillOpen ? 'In Approval' : 'Draft';
+  // Inbox: keep only open steps; the decision moves to Inbox History
+  const finished = doc.status !== 'In Approval';
+  const inboxItem = InnomickCMSData.approvals.inbox.find(i => i.id === item.id);
+  if (inboxItem) {
+    inboxItem.approvedCount = cycle.done;
+    const pend = cycle.steps.filter(s => s.state === 'Pending');
+    inboxItem.status = cycle.type === 'Parallel' ? `${pend.length} Approvals Pending` : (pend[0] || {}).title;
+  }
+  if (finished) InnomickCMSData.approvals.inbox = InnomickCMSData.approvals.inbox.filter(i => i.id !== item.id);
+  const ah = InnomickCMSData.approvals;
+  ah.inboxHistory = ah.inboxHistory || [];
+  ah.inboxHistory.unshift({
+    id: item.id, ncRequestId: rec.id, ncDoc: item.ncDoc, name: item.name, approvalType: cycle.type,
+    status: action === 'Approve' ? 'Approved' : doc.status, step: step.title, approver: step.approver,
+    progress: `Step ${cycle.steps.indexOf(step) + 1} of ${cycle.steps.length}`, progressPct: Math.round((cycle.done / cycle.steps.length) * 100),
+    requestedBy: item.requestedBy || InnomickCMSData.currentUser.name, requestedOn: item.requestedOn, actedOn: now
+  });
+  const out = ah.outbox.find(o => o.id === `OUT-${rec.id}-${item.ncDoc}`);
+  if (out) {
+    out.status = finished ? doc.status : (inboxItem ? inboxItem.status : out.status);
+    out.approvedCount = cycle.done;
+    if (finished) {
+      ah.outbox = ah.outbox.filter(o => o !== out);
+      ah.outboxHistory = ah.outboxHistory || [];
+      ah.outboxHistory.unshift({ ...out, completedOn: now });
+    }
+  }
 
+  ncUpdateRequestStatus(rec);
   closeModal('ncApproverModal');
   renderApprovals();
-  showToast(action === 'Approve' ? 'Document approved' : action === 'Reject' ? 'Document rejected' : 'Change requested from the requester', 'success');
+}
+
+// The request is Approved only when every generated document has its final approval
+function ncUpdateRequestStatus(rec) {
+  const docs = ncDocKeys(rec).map(k => rec.docs[k]).filter(Boolean);
+  const allFinal = docs.length === ncDocKeys(rec).length && docs.every(d => d.finalApproved);
+  const reqRow = InnomickCMSData.requests.find(r => r.id === rec.id);
+  if (allFinal) {
+    if (rec.status !== 'Approved') ncActivateContract(rec);
+    return;
+  }
+  const anyOpen = docs.some(d => d.status === 'In Approval');
+  const anyChange = docs.some(d => d.status === 'Request for Change');
+  const anyReject = docs.some(d => d.status === 'Rejected');
+  // UAT keeps the request "In Approval" once any document has been sent for approval; a rejection ends it
+  const started = docs.some(d => d.cycle);
+  rec.status = anyReject ? 'Rejected' : anyOpen || started ? 'In Approval' : anyChange ? 'Request for Change' : 'Draft';
+  if (reqRow) reqRow.status = rec.status;
+}
+
+// Extension / Completion: no documents or approvals in the live system - applied on submit
+function ncSubmitDirect(rec) {
+  const f = rec.form;
+  const mv = rec.modeValues || {};
+  const c = rec.sourceContract;
+  rec.submitted = true;
+  rec.status = 'Completed';
+  if (c) {
+    const live = InnomickCMSData.contracts.find(x => x.id === c.id) || c;
+    const [start] = ncParseRange(live.durationDates);
+    if (rec.mode === 'extension') {
+      live.durationDates = `${ncShortDate(start || f.startDate)} - ${ncShortDate(mv.newEnd)}`;
+      live.durationMonths = ncMonthsBetween(start || f.startDate, mv.newEnd);
+      live.periods = [{ type: 'Extension', start: f.endDate, end: mv.newEnd }].concat(live.periods || [{ type: 'New', start: start || f.startDate, end: f.endDate }]);
+      live.status = 'Active';
+    } else {
+      live.status = 'Archived';
+      live.periods = [{ type: 'Completion', start: start || f.startDate, end: mv.completionDate }].concat(live.periods || [{ type: 'New', start: start || f.startDate, end: f.endDate }]);
+      live.durationDates = `${ncShortDate(start || f.startDate)} - ${ncShortDate(mv.completionDate)}`;
+    }
+  }
+  const row = InnomickCMSData.requests.find(r => r.id === rec.id);
+  if (row) row.status = 'Completed';
+  NCState.afterInfo = () => switchRoute('requests');
+  ncShowInfo(`Contract ${rec.mode === 'extension' ? 'Extension' : 'Completion'} Submitted Successfully!`, true);
 }
 
 // Final approval of the contract draft: the request becomes a live contract
@@ -1478,16 +1558,16 @@ function ncActivateContract(rec) {
   const mv = rec.modeValues || {};
   const start = mv.newEffective || f.startDate;
   const end = mv.newEnd || mv.completionDate || f.endDate;
-  const today = new Date().toISOString().slice(0, 10);
+  const closing = rec.mode === 'cancel' || rec.mode === 'completion';
   rec.status = 'Approved';
   const reqRow = InnomickCMSData.requests.find(r => r.id === rec.id);
-  if (reqRow) reqRow.status = 'Approved';
+  if (reqRow) { reqRow.status = 'Approved'; reqRow.isPendingActivation = !closing; }
   const vendor = (f.vendors[f.selectedVendor] || {}).name || '';
   const existing = rec.sourceContract;
   const contract = {
     id: existing ? existing.id : `CNT-${rec.id}`,
     refNo: rec.refNo, code: rec.refNo, contractName: f.name, name: f.name, hasIcon: false,
-    status: rec.mode === 'cancel' || rec.mode === 'completion' ? 'Archived' : (start > today ? 'Approved' : 'Active'),
+    status: closing ? 'Archived' : 'Approved',
     vendorName: vendor, vendor, department: rec.department, branch: rec.branch,
     durationMonths: ncMonthsBetween(start, end), durationDates: `${ncShortDate(start)} - ${ncShortDate(end)}`, durationProgress: 0,
     contractValue: Number(f.value || 0).toLocaleString(), value: Number(f.value || 0), currency: 'KWD',
@@ -1517,14 +1597,15 @@ function ncApprovalChainHtml(doc) {
   due.setDate(due.getDate() + 2);
   const dueStr = due.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   const nodes = [{ title: 'Submitted by', person: InnomickCMSData.currentUser.name, note: ncFormatDateTime(new Date(c.started)), done: true }]
-    .concat(c.steps.map((st, i) => ({ title: st.title, person: st.approver, note: st.state === 'Pending' ? `Due: ${dueStr}` : st.state, done: st.state === 'Approved', n: i + 1, bad: /Reject|Change/.test(st.state) })));
+    .concat(c.steps.map((st, i) => ({ title: st.title, person: st.approver, note: st.state === 'Pending' ? `Due: ${dueStr}` : st.state === 'Waiting' ? 'After prev. approval' : st.actedOn ? `Updated: ${st.actedOn}` : st.state,
+      done: st.state === 'Approved', n: i + 1, bad: /Reject/.test(st.state), change: /Change/.test(st.state) })));
   return `
     <div class="nc-chain-inline">
       <div class="nc-chain-inline-label">APPROVAL CHAIN</div>
       <div class="nc-chain-inline-track">
         ${nodes.map((n, i) => `
           <div class="nc-chain-inline-node">
-            <span class="nc-chain-inline-dot ${n.done ? 'done' : ''} ${n.bad ? 'bad' : ''}">${n.done ? '&#10003;' : n.n}</span>
+            <span class="nc-chain-inline-dot ${n.done ? 'done' : ''} ${n.bad ? 'bad' : ''} ${n.change ? 'change' : ''}">${n.done ? '&#10003;' : n.change ? '&#8635;' : n.bad ? '&#10005;' : n.n}</span>
             <div class="nc-chain-inline-title">${n.title}</div>
             <div class="nc-chain-inline-sub">${n.person}</div>
             <div class="nc-chain-inline-sub">${n.note}</div>

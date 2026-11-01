@@ -80,6 +80,16 @@ function parseAndSwitchRoute(rawHash) {
     return;
   }
 
+  if (clean.startsWith('existing-contract-details')) {
+    switchRoute('mg_detail', clean.split('/')[1], false);
+    return;
+  }
+
+  if (clean.startsWith('approve-migrated')) {
+    switchRoute('mg_review', clean.split('/')[1], false);
+    return;
+  }
+
   if (clean.startsWith('template-editor') || clean.startsWith('template_editor')) {
     const parts = clean.split('/');
     switchRoute('template_editor', parts[1] || 'TPL-01', false);
@@ -155,7 +165,7 @@ function switchRoute(route, param = null, updateHash = true) {
     'statistics', 'requests', 'contracts', 'approvals', 'templates', 
     'notifications', 'import', 'contract_selection',
     'approval_review', 'request_detail', 'contract_detail', 'template_editor', 'excel_import',
-    'nc_template_select', 'nc_details', 'nc_doc_editor', 'import_builder', 'template_view', 'nc_approve'
+    'nc_template_select', 'nc_details', 'nc_doc_editor', 'import_builder', 'template_view', 'nc_approve', 'mg_detail', 'mg_review'
   ];
   if (!validRoutes.includes(route)) {
     route = 'statistics';
@@ -191,6 +201,10 @@ function switchRoute(route, param = null, updateHash = true) {
     if (updateHash) window.location.hash = `/view-document/${param}`;
   } else if (route === 'nc_approve') {
     if (updateHash) window.location.hash = `/approve/${param}`;
+  } else if (route === 'mg_detail') {
+    if (updateHash) window.location.hash = `/existing-contract-details/${param}`;
+  } else if (route === 'mg_review') {
+    if (updateHash) window.location.hash = `/approve-migrated/${param}`;
   } else {
     if (updateHash) {
       window.location.hash = route;
@@ -211,7 +225,8 @@ function switchRoute(route, param = null, updateHash = true) {
   else if (route === 'approval_review') navId = 'nav-approvals';
   else if (route === 'template_editor') navId = 'nav-templates';
   else if (route === 'excel_import' || route === 'import_builder') navId = 'nav-import';
-  else if (route === 'nc_approve') navId = 'nav-approvals';
+  else if (route === 'nc_approve' || route === 'mg_review') navId = 'nav-approvals';
+  else if (route === 'mg_detail') navId = 'nav-import';
   
   const activeNavItem = document.getElementById(navId);
   if (activeNavItem) {
@@ -237,8 +252,9 @@ function switchRoute(route, param = null, updateHash = true) {
   else if (route === 'import_builder') targetId = 'view-import-builder';
   else if (route === 'template_view') targetId = 'view-template-viewer';
   else if (route === 'nc_approve') targetId = 'view-nc-approve';
-  // The approver page uses the full width (no CMS sidebar), like the live page
-  document.body.classList.toggle('nc-approve-mode', route === 'nc_approve');
+  else if (route === 'mg_detail' || route === 'mg_review') targetId = 'view-contract-detail';
+  // The approver and migrated contract pages use the full width (no CMS sidebar), like the live pages
+  document.body.classList.toggle('nc-approve-mode', ['nc_approve', 'mg_detail', 'mg_review'].includes(route));
 
   const targetSection = document.getElementById(targetId);
   if (targetSection) {
@@ -265,6 +281,8 @@ function switchRoute(route, param = null, updateHash = true) {
   else if (route === 'import_builder') impRenderBuilder();
   else if (route === 'template_view') tplRenderViewer(param);
   else if (route === 'nc_approve') ncRenderApprovePage(param);
+  else if (route === 'mg_detail') mgRenderDetail(param);
+  else if (route === 'mg_review') mgRenderReview(param);
 }
 
 // ============================================================================
@@ -366,7 +384,8 @@ function renderStatistics() {
   const sidebarNotif = document.getElementById('sidebarNotifBadge');
   if (sidebarNotif) {
     const profile = InnomickCMSData.userProfiles ? InnomickCMSData.userProfiles[InnomickCMSData.activeProfileKey || 'arjun'] : null;
-    const badge = profile ? profile.badgeCount : InnomickCMSData.statistics.pendingApprovals;
+    // UAT: the badge counts approval steps waiting on the current user
+    const badge = (InnomickCMSData.approvals.inbox || []).length;
     sidebarNotif.textContent = badge > 99 ? '99+' : badge;
   }
 
@@ -783,6 +802,12 @@ function renderRequestsTable(dataList = InnomickCMSData.requests) {
       statusBadge = `<span class="badge-in-approval">In Approval</span>`;
     } else if (req.status === 'Approved') {
       statusBadge = `<span class="badge-approved">Approved</span>`;
+    } else if (req.status === 'Active') {
+      statusBadge = `<span class="badge-approved">Active</span>`;
+    } else if (req.status === 'Rejected') {
+      statusBadge = `<span class="badge-rejected">Rejected</span>`;
+    } else if (req.migratedId) {
+      statusBadge = req.status === 'Request for Change' ? `<span class="badge-in-approval">${req.status}</span>` : `<span class="badge-draft">${req.status}</span>`;
     } else {
       statusBadge = `<span class="badge-draft">Draft</span>`;
     }
@@ -1333,7 +1358,8 @@ function filterAppTemplates(type, btn) {
 }
 
 function openApprovalDetail(id) {
-  if (String(id).startsWith('NCAPP-')) { switchRoute('nc_approve', id); return; }
+  if (String(id).startsWith('NCAPP-')) { NCApprove.fromInbox = true; switchRoute('nc_approve', id); return; }
+  if (String(id).startsWith('MGAPP-')) { CDState.versionIndex = 0; switchRoute('mg_review', id); return; }
   switchRoute('approval_review', id);
 }
 
@@ -2021,7 +2047,7 @@ function switchUserProfile(profileKey) {
 
   // Update notification badge
   const sidebarNotif = document.getElementById('sidebarNotifBadge') || document.getElementById('sidebarNotifCount');
-  if (sidebarNotif) sidebarNotif.textContent = profile.badgeCount > 99 ? '99+' : profile.badgeCount;
+  if (sidebarNotif) sidebarNotif.textContent = (InnomickCMSData.approvals.inbox || []).length;
 
   // Update Statistics KPI numbers
   if (profile.stats) {
@@ -2061,14 +2087,16 @@ function renderImportBatches() {
   if (!tbody) return;
 
   // Imported contracts are the migrated ones (marked with the "M" badge elsewhere)
-  const list = InnomickCMSData.contracts.filter(c => c.hasIcon);
+  const list = (InnomickCMSData.migrated || []).concat(InnomickCMSData.contracts.filter(c => c.hasIcon));
   if (list.length === 0) {
     tbody.innerHTML = '<tr><td colspan="9" class="empty-table-state">No imported contracts found</td></tr>';
     return;
   }
 
-  const badge = st => st === 'In Approval' ? '<span class="badge-in-approval">In Approval</span>'
-    : st === 'Active' ? '<span class="badge-approved">Active</span>' : `<span class="badge-draft">${st}</span>`;
+  const badge = st => st === 'In Approval' || st === 'Request for Change' ? `<span class="badge-in-approval">${st}</span>`
+    : st === 'Active' ? '<span class="badge-approved">Active</span>'
+    : ['Rejected', 'Archived', 'Notice Period'].includes(st) ? `<span class="badge-rejected">${st}</span>`
+    : st === 'Approved' ? '<span class="badge-approved">Approved</span>' : `<span class="badge-draft">${st}</span>`;
 
   tbody.innerHTML = list.map(c => `
     <tr>
@@ -2423,16 +2451,19 @@ function renderContractSelection() {
 
   // Which contracts each request type can start from
   const eligible = {
-    renew: ['Expired', 'Expiring Soon', 'Notice Period'],
+    renew: ['Active', 'Expired', 'Expiring Soon', 'Notice Period'],
     cancel: null,
-    amend: ['Active', 'Expiring Soon'],
-    extension: ['Active', 'Expiring Soon'],
-    completion: ['Active', 'Expiring Soon']
+    amend: ['Active', 'Expiring Soon', 'Notice Period'],
+    extension: ['Expiring Soon', 'Notice Period'],
+    completion: ['Active', 'Expiring Soon', 'Notice Period']
   }[actionType];
 
   let filtered = InnomickCMSData.contracts.filter(c => {
     if (c.status === 'Archived') return false;
     if (eligible && !eligible.includes(c.status)) return false;
+    if (actionType === 'renew' && (c.renewable || 'Yes') !== 'Yes') return false;
+    if (actionType === 'extension' && (c.extendable || 'Yes') !== 'Yes') return false;
+    if (actionType === 'cancel' && (c.status === 'Expired' || c.requestType === 'Cancellation')) return false;
     if (fBranch !== 'all' && c.branch !== fBranch) return false;
     if (fDept !== 'all' && c.department !== fDept) return false;
     if (fVendor !== 'all' && c.vendor !== fVendor) return false;
@@ -2528,7 +2559,7 @@ function resetCSFilters() {
   const b = document.getElementById('csFilterBranch'); if (b) b.value = 'all';
   const d = document.getElementById('csFilterDept'); if (d) d.value = 'all';
   const v = document.getElementById('csFilterVendor'); if (v) v.value = 'all';
-  const c = document.getElementById('csFilterCategory'); if (c) c.value = 'Service';
+  const c = document.getElementById('csFilterCategory'); if (c) c.value = 'all';
   const min = document.getElementById('csPriceMin'); if (min) min.value = '';
   const max = document.getElementById('csPriceMax'); if (max) max.value = '';
   const toggle = document.getElementById('csCreatedByMeToggle'); if (toggle) toggle.checked = false;
