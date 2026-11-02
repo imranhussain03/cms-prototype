@@ -383,9 +383,8 @@ function renderStatistics() {
 
   const sidebarNotif = document.getElementById('sidebarNotifBadge');
   if (sidebarNotif) {
-    const profile = InnomickCMSData.userProfiles ? InnomickCMSData.userProfiles[InnomickCMSData.activeProfileKey || 'arjun'] : null;
     // UAT: the badge counts approval steps waiting on the current user
-    const badge = (InnomickCMSData.approvals.inbox || []).length;
+    const badge = cmsMyInbox().length;
     sidebarNotif.textContent = badge > 99 ? '99+' : badge;
   }
 
@@ -1042,14 +1041,47 @@ function switchApprovalTab(tab) {
   renderApprovals();
 }
 
+// Seeded approvals have no chain behind them, so they wait on the default demo user
+const CMS_DEFAULT_USER = 'Imran Hussain';
+
+function cmsApprovalSteps(item) {
+  if (item.mgId) {
+    const c = mgFind(item.mgId);
+    return c && c.approval ? c.approval.steps : null;
+  }
+  const rec = item.ncRequestId && NCState.records[item.ncRequestId];
+  const doc = rec && rec.docs[item.ncDoc];
+  return doc && doc.cycle ? doc.cycle.steps : null;
+}
+
+// A step whose approver has no account (external) stays open to everyone, so it can't get stuck
+function cmsIsMine(item, name = InnomickCMSData.currentUser.name) {
+  const steps = cmsApprovalSteps(item);
+  if (!steps) return name === CMS_DEFAULT_USER;
+  const open = steps.filter(s => s.state === 'Pending').map(s => s.approver);
+  const accounts = Object.values(InnomickCMSData.userProfiles).map(p => p.name);
+  return open.includes(name) || (open.length > 0 && !open.some(n => accounts.includes(n)));
+}
+
+function cmsMyInbox(name) {
+  return (InnomickCMSData.approvals.inbox || []).filter(i => cmsIsMine(i, name));
+}
+
+function cmsMyStep(steps) {
+  const open = steps.filter(s => s.state === 'Pending');
+  return open.find(s => s.approver === InnomickCMSData.currentUser.name) || open[0];
+}
+
 function renderApprovals() {
   const container = document.getElementById('approvalsTabContent');
   if (!container) return;
 
   const tab = CMSState.approvalTab;
+  const me = InnomickCMSData.currentUser.name;
 
   if (tab === 'inbox') {
-    if (InnomickCMSData.approvals.inbox.length === 0) {
+    const myInbox = cmsMyInbox();
+    if (myInbox.length === 0) {
       container.innerHTML = '<div class="empty-table-state">You don\'t have any data in inbox</div>';
       return;
     }
@@ -1088,7 +1120,7 @@ function renderApprovals() {
             </tr>
           </thead>
           <tbody>
-            ${InnomickCMSData.approvals.inbox.map(item => {
+            ${myInbox.map(item => {
               const type = item.approvalType || 'Sequential';
               const isParallel = type === 'Parallel';
               const progressPct = item.progressPercent !== undefined ? item.progressPercent : (item.totalCount ? Math.round((item.approvedCount / item.totalCount) * 100) : 0);
@@ -1160,7 +1192,7 @@ function renderApprovals() {
             </tr>
           </thead>
           <tbody>
-            ${InnomickCMSData.approvals.outbox.filter(o => o.ncRequestId).map(item => `
+            ${InnomickCMSData.approvals.outbox.filter(o => o.ncRequestId && (o.requestedBy || CMS_DEFAULT_USER) === me).map(item => `
               <tr style="cursor: pointer;" onclick="openRequestDetails('${item.ncRequestId}')">
                 <td>
                   <div style="display: flex; align-items: center; gap: 8px;">
@@ -1179,7 +1211,7 @@ function renderApprovals() {
                 <td>${item.requestedOn}</td>
               </tr>
             `).join('')}
-            ${InnomickCMSData.approvals.inbox.map(item => `
+            ${InnomickCMSData.approvals.inbox.filter(item => !item.ncRequestId && !item.mgId && (item.requestedBy || CMS_DEFAULT_USER) === me).map(item => `
               <tr style="cursor: pointer;" onclick="switchRoute('approval_review', '${item.id}')">
                 <td>
                   <div style="display: flex; align-items: center; gap: 8px;">
@@ -2047,7 +2079,7 @@ function switchUserProfile(profileKey) {
 
   // Update notification badge
   const sidebarNotif = document.getElementById('sidebarNotifBadge') || document.getElementById('sidebarNotifCount');
-  if (sidebarNotif) sidebarNotif.textContent = (InnomickCMSData.approvals.inbox || []).length;
+  if (sidebarNotif) sidebarNotif.textContent = cmsMyInbox().length;
 
   // Update Statistics KPI numbers
   if (profile.stats) {

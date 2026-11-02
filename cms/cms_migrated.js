@@ -542,7 +542,7 @@ function mgConfirmStart(id) {
   ap.inbox = ap.inbox.filter(i => i.id !== `MGAPP-${c.id}`);
   ap.inbox.unshift({ id: `MGAPP-${c.id}`, mgId: c.id, name: c.code, approvalType: t.type, status, approvedCount: 0, totalCount: t.steps.length, requestedBy: InnomickCMSData.currentUser.name, requestedOn: mgToday() });
   ap.outbox = ap.outbox.filter(o => o.mgId !== c.id);
-  ap.outbox.unshift({ id: `OUT-${c.id}`, mgId: c.id, ncRequestId: c.id, contractCode: c.code, title: c.code, approvalType: t.type, status, totalSteps: t.steps.length, approvedCount: 0, requestedOn: mgToday() });
+  ap.outbox.unshift({ id: `OUT-${c.id}`, requestedBy: InnomickCMSData.currentUser.name, mgId: c.id, ncRequestId: c.id, contractCode: c.code, title: c.code, approvalType: t.type, status, totalSteps: t.steps.length, approvedCount: 0, requestedOn: mgToday() });
   closeModal('mgStartModal');
   CMSState.mgEditing = null;
   mgRenderDetail(id);
@@ -555,7 +555,7 @@ function mgConfirmStart(id) {
 function mgRenderReview(inboxId) {
   const item = InnomickCMSData.approvals.inbox.find(i => i.id === inboxId);
   const c = item && mgFind(item.mgId);
-  if (!c) { switchRoute('approvals'); return; }
+  if (!c || !cmsIsMine(item)) { switchRoute('approvals'); return; }
   CDState.contract = c;
   CDState.versionIndex = c.versions[CDState.versionIndex] ? CDState.versionIndex : 0;
   const vi = CDState.versionIndex;
@@ -654,7 +654,7 @@ function mgDecide(inboxId, action, remarks) {
   const c = mgFind(item.mgId);
   const cy = c.approval;
   const now = ncFormatDateTime(new Date());
-  const step = cy.steps.find(s => s.state === 'Pending');
+  const step = cmsMyStep(cy.steps);
   const ended = action !== 'Approve';
   step.actedOn = now;
   step.remarks = remarks;
@@ -676,7 +676,7 @@ function mgDecide(inboxId, action, remarks) {
   (ap.inboxHistory = ap.inboxHistory || []).unshift({
     id: item.id, mgId: c.id, name: item.name, approvalType: cy.type, status: finished ? c.status : 'Pending', step: step.title, approver: step.approver,
     progress: `Step ${cy.steps.indexOf(step) + 1} of ${cy.steps.length}`, progressPct: Math.round((done / cy.steps.length) * 100),
-    requestedBy: item.requestedBy, requestedOn: item.requestedOn, actedOn: now
+    requestedBy: item.requestedBy, requestedOn: item.requestedOn, actedOn: now, actedBy: InnomickCMSData.currentUser.name
   });
   const out = ap.outbox.find(o => o.mgId === c.id);
   if (out) Object.assign(out, { status, approvedCount: done });

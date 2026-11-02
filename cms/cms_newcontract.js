@@ -24,7 +24,20 @@ const NC_DIRECTORY = [
   { name: 'Omar Siddiqui', role: 'Legal Counsel', branch: 'Innomick', department: 'Facilities Management' },
   { name: 'Kevin Brooks', role: 'Department Manager', branch: 'Innomick', department: 'Medical Insurance' },
   { name: 'Aisha Rahman', role: 'Department Manager', branch: 'Innomick', department: 'Facilities Management' },
-  { name: 'Leo Fernandes', role: 'Procurement Lead', branch: 'Innomick Dubai HQ (UAE)', department: 'Information Technology' }
+  { name: 'Leo Fernandes', role: 'Procurement Lead', branch: 'Innomick Dubai HQ (UAE)', department: 'Information Technology' },
+  { name: 'Arjun Mehta', role: 'Medical & Corporate Approver', branch: 'Innomick', department: 'Medical Insurance' },
+  { name: 'Imran Hussain', role: 'Lead Cloud Solutions Consultant', branch: 'Innomick', department: 'Information Technology' },
+  { name: 'Nisha Kapoor', role: 'Department Manager', branch: 'Innomick Dubai HQ (UAE)', department: 'Medical Insurance' },
+  { name: 'Rahul Verma', role: 'Department Manager', branch: 'Innomick Dubai HQ (UAE)', department: 'Facilities Management' },
+  { name: 'Fatima Noor', role: 'Department Manager', branch: 'Innomick Kuwait Tech Hub', department: 'Information Technology' },
+  { name: 'Thomas George', role: 'Finance Controller', branch: 'Innomick Kuwait Tech Hub', department: 'Medical Insurance' },
+  { name: 'Meera Iyer', role: 'Procurement Lead', branch: 'Innomick Kuwait Tech Hub', department: 'Facilities Management' },
+  { name: 'Yusuf Khan', role: 'Legal Counsel', branch: 'Innomick Riyadh Regional Office (KSA)', department: 'Information Technology' },
+  { name: 'Anita Joseph', role: 'Department Manager', branch: 'Innomick Riyadh Regional Office (KSA)', department: 'Medical Insurance' },
+  { name: 'Vikram Shah', role: 'Department Manager', branch: 'Innomick Riyadh Regional Office (KSA)', department: 'Facilities Management' },
+  { name: 'Grace Tan', role: 'Department Manager', branch: 'Innomick Singapore APAC Center', department: 'Information Technology' },
+  { name: 'Ethan Lim', role: 'Legal Counsel', branch: 'Innomick Singapore APAC Center', department: 'Medical Insurance' },
+  { name: 'Rina Das', role: 'Finance Controller', branch: 'Innomick Singapore APAC Center', department: 'Facilities Management' }
 ];
 
 const NC_DEFAULT_CHAIN = [
@@ -1235,6 +1248,7 @@ function ncConfirmStartApproval() {
   InnomickCMSData.approvals.outbox = InnomickCMSData.approvals.outbox.filter(o => o.id !== `OUT-${rec.id}-${key}`);
   InnomickCMSData.approvals.outbox.unshift({
     id: `OUT-${rec.id}-${key}`,
+    requestedBy: InnomickCMSData.currentUser.name,
     contractCode: rec.refNo,
     title: `${rec.form.name} · ${key === 'letter' ? 'Request Letter' : 'Contract Draft'}`,
     vendor: (rec.form.vendors[rec.form.selectedVendor] || {}).name || '',
@@ -1413,7 +1427,7 @@ function ncOpenApproverReview(inboxId) {
   NCState.current = rec;
   NCState.reviewing = item;
   const doc = rec.docs[item.ncDoc];
-  const step = doc.cycle.steps.find(s => s.state === 'Pending');
+  const step = cmsMyStep(doc.cycle.steps);
   const f = rec.form;
   const vendor = (f.vendors[f.selectedVendor] || {}).name || '';
   const row = (l, v) => `<div class="nc-chain-row"><span>${l}</span><div>${v || '—'}</div></div>`;
@@ -1421,7 +1435,7 @@ function ncOpenApproverReview(inboxId) {
   document.getElementById('ncApproverBody').innerHTML = `
     <div class="nc-chain-step">
       <div class="nc-chain-step-title">${item.name}</div>
-      ${row('Owner', InnomickCMSData.currentUser.name)}
+      ${row('Owner', ncRequester(rec))}
       ${row('Contract ID', rec.refNo)}
       ${row('Contract Name', f.name)}
       ${row('Contract Type', rec.contractType)}
@@ -1442,7 +1456,7 @@ function ncApproverAction(action) {
   const doc = rec.docs[item.ncDoc];
   const comment = document.getElementById('ncApproverComment').value.trim();
   const cycle = doc.cycle;
-  const step = cycle.steps.find(s => s.state === 'Pending');
+  const step = cmsMyStep(cycle.steps);
   if (!step) return;
   if (action !== 'Approve' && !comment) {
     showToast('Please add a comment', 'info');
@@ -1489,7 +1503,7 @@ function ncApproverAction(action) {
     id: item.id, ncRequestId: rec.id, ncDoc: item.ncDoc, name: item.name, approvalType: cycle.type,
     status: action === 'Approve' ? 'Approved' : doc.status, step: step.title, approver: step.approver,
     progress: `Step ${cycle.steps.indexOf(step) + 1} of ${cycle.steps.length}`, progressPct: Math.round((cycle.done / cycle.steps.length) * 100),
-    requestedBy: item.requestedBy || InnomickCMSData.currentUser.name, requestedOn: item.requestedOn, actedOn: now
+    requestedBy: item.requestedBy || ncRequester(rec), requestedOn: item.requestedOn, actedOn: now, actedBy: InnomickCMSData.currentUser.name
   });
   const out = ah.outbox.find(o => o.id === `OUT-${rec.id}-${item.ncDoc}`);
   if (out) {
@@ -1571,7 +1585,7 @@ function ncActivateContract(rec) {
     vendorName: vendor, vendor, department: rec.department, branch: rec.branch,
     durationMonths: ncMonthsBetween(start, end), durationDates: `${ncShortDate(start)} - ${ncShortDate(end)}`, durationProgress: 0,
     contractValue: Number(f.value || 0).toLocaleString(), value: Number(f.value || 0), currency: 'KWD',
-    category: rec.contractType, type: `${rec.contractType} Agreement`, owner: InnomickCMSData.currentUser.name,
+    category: rec.contractType, type: `${rec.contractType} Agreement`, owner: ncRequester(rec),
     description: f.description, renewable: f.renewable, extendable: f.extendable, autoRenewal: f.autoRenewal,
     budgetStatus: f.budget === 'Budgeted' ? 'Yes' : 'No', budgetCode: f.budgetCode,
     periods: [{ type: rec.mode ? NC_MODES[rec.mode].requestType : 'New', start, end, label: rec.mode === 'amend' ? mv.addendumNo : '' }].concat(existing && existing.periods ? existing.periods : [])
@@ -1580,6 +1594,12 @@ function ncActivateContract(rec) {
   InnomickCMSData.contracts.unshift(contract);
 }
 
+
+// The person who raised the request stays the owner after switching to an approver's account
+function ncRequester(rec) {
+  const row = rec && InnomickCMSData.requests.find(r => r.id === rec.id);
+  return (row && row.submittedBy) || InnomickCMSData.currentUser.name;
+}
 
 // Info popup: plain message (auto-closes after submit) or a confirmation with tick and Close
 function ncShowInfo(message, confirm) {
@@ -1596,7 +1616,7 @@ function ncApprovalChainHtml(doc) {
   const due = new Date(c.started);
   due.setDate(due.getDate() + 2);
   const dueStr = due.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const nodes = [{ title: 'Submitted by', person: InnomickCMSData.currentUser.name, note: ncFormatDateTime(new Date(c.started)), done: true }]
+  const nodes = [{ title: 'Submitted by', person: ncRequester(NCState.current), note: ncFormatDateTime(new Date(c.started)), done: true }]
     .concat(c.steps.map((st, i) => ({ title: st.title, person: st.approver, note: st.state === 'Pending' ? `Due: ${dueStr}` : st.state === 'Waiting' ? 'After prev. approval' : st.actedOn ? `Updated: ${st.actedOn}` : st.state,
       done: st.state === 'Approved', n: i + 1, bad: /Reject/.test(st.state), change: /Change/.test(st.state) })));
   return `

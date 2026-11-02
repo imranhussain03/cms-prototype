@@ -116,7 +116,11 @@
     { name: 'Legal Panel', members: ['Omar Siddiqui', 'Sara Thomas'] },
     { name: 'Management Board', members: ['Daniel Mathew', 'Kevin Brooks', 'Leo Fernandes'] }
   ];
-  const atEmail = n => n ? n.toLowerCase().replace(/[^a-z ]/g, '').trim().replace(/\s+/g, '.') + '@innomicktechnologies.com' : '';
+  const atEmail = n => {
+    const p = Object.values(D.userProfiles).find(x => x.name === n);
+    if (p) return p.email;
+    return n ? n.toLowerCase().replace(/[^a-z ]/g, '').trim().replace(/\s+/g, '.') + '@innomicktechnologies.com' : '';
+  };
   const atRow = (label, ctrl) => `<div class="at-row"><label>${label}</label><div>${ctrl}</div></div>`;
   const atRO = v => `<input class="cms-input" readonly value="${esc(v)}">`;
   const blankStep = () => ({ title: '', approver: '', email: '', action: 'Review & Approve', internal: true, mode: 'name', apBranch: '', apDept: '', apRole: '' });
@@ -301,8 +305,11 @@
 
   function renderHistoryTab(container) {
     const inbox = CMSState.histTab === 'inbox';
-    const rows = inbox ? (D.approvals.inboxHistory || []).concat(STATIC_INBOX_HISTORY)
-      : (D.approvals.outboxHistory || []).concat(STATIC_OUTBOX_HISTORY);
+    const me = D.currentUser.name;
+    // History belongs to whoever acted on the step, or raised the request
+    const rows = (inbox ? (D.approvals.inboxHistory || []).filter(r => (r.actedBy || r.approver || CMS_DEFAULT_USER) === me)
+      : (D.approvals.outboxHistory || []).filter(r => (r.requestedBy || CMS_DEFAULT_USER) === me))
+      .concat(me === CMS_DEFAULT_USER ? (inbox ? STATIC_INBOX_HISTORY : STATIC_OUTBOX_HISTORY) : []);
     const open = r => r.mgId ? `mgOpen('${r.mgId}', 'approvals')` : r.ncRequestId ? `ncOpenApprovalView('NCAPP-${r.ncRequestId}-${r.ncDoc}')` : `CMSState.reviewReadOnly = true; switchRoute('approval_review', 'APP-F01')`;
     const statusColor = st => /Reject|Change/.test(st) ? '#dc2626' : '#15803d';
     container.innerHTML = `
@@ -543,9 +550,11 @@
         ${Object.keys(profiles).map(k => {
           const p = profiles[k];
           const active = k === D.activeProfileKey;
+          const waiting = cmsMyInbox(p.name).length;
           return `<button class="acc-user ${active ? 'active' : ''}" onclick="switchUserProfile('${k}')">
             <span class="acc-avatar">${ini(p.name)}</span>
             <span class="acc-user-text"><b>${esc(p.name)}</b><small>${esc(p.role || p.title || '')}</small></span>
+            ${waiting ? `<span class="acc-count" title="${waiting} waiting for approval">${waiting}</span>` : ''}
             ${active ? '<span class="acc-check">&#10003;</span>' : ''}
           </button>`;
         }).join('')}
@@ -1201,12 +1210,12 @@
     return item.stepNo;
   }
   function pending() {
-    const list = (D.approvals.inbox || []).slice();
+    const list = cmsMyInbox();
     list.forEach(stepNo);
     return list.sort((a, b) => a.stepNo - b.stepNo);
   }
   window.cmsUpdateNotifBadge = function () {
-    const n = (D.approvals.inbox || []).length;
+    const n = cmsMyInbox().length;
     const b = document.getElementById('sidebarNotifBadge');
     if (b) b.textContent = n;
     const p = document.querySelector('.profile-menu-badge');
@@ -1375,6 +1384,18 @@
     live.status = 'Archived';
     return r;
   };
+
+  // Everyone in the approver directory is an account, so any workflow step can be approved.
+  // Done after the saved data loads, because that replaces the profile list.
+  NC_DIRECTORY.forEach(p => {
+    const known = Object.values(D.userProfiles).some(x => x.name === p.name);
+    if (known) return;
+    const key = p.name.toLowerCase().replace(/[^a-z]/g, '');
+    D.userProfiles[key] = {
+      key, name: p.name, initials: p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+      title: `${p.role} · ${p.department}`, email: `${p.name.toLowerCase().replace(/\s+/g, '.')}@innomicktechnologies.com`
+    };
+  });
 
   // The signed-in user drives the top icon and the demo-user tick, so all three always agree
   function syncCurrentUser() {

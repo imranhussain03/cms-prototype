@@ -19,7 +19,7 @@ function ncApproveContext(inboxId) {
     id: inboxId, ncRequestId: m[1], ncDoc: m[2],
     name: `${rec.refNo.replace(/\//g, '-')} ${m[2] === 'letter' ? 'Request Letter' : 'Draft'}.docx`
   };
-  return { item, rec, doc: rec.docs[m[2]], canDecide: !!inboxItem };
+  return { item, rec, doc: rec.docs[m[2]], canDecide: !!inboxItem && cmsIsMine(inboxItem) };
 }
 
 function ncRenderApprovePage(inboxId) {
@@ -33,7 +33,7 @@ function ncRenderApprovePage(inboxId) {
   const c = doc.cycle;
   const fmtLong = d => new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
   const due = new Date(c.started); due.setDate(due.getDate() + 2);
-  const current = c.steps.find(s => s.state === 'Pending');
+  const current = cmsMyStep(c.steps);
   const canDecide = ctx.canDecide && NCApprove.fromInbox && !!current;
   const progressPct = Math.round((c.done / c.steps.length) * 100);
   const reqType = rec.mode ? NC_MODES[rec.mode].requestType : 'New';
@@ -46,7 +46,7 @@ function ncRenderApprovePage(inboxId) {
     if (s === current) return ['Current Step', 'ap-badge-cur', `Due: ${fmtLong(due)}`];
     return ['Pending', 'ap-badge-wait', c.type === 'Parallel' ? `Due: ${fmtLong(due)}` : 'After previous approval'];
   };
-  const chainNodes = [{ title: 'Submitted by', who: InnomickCMSData.currentUser.name, note: new Date(c.started).toISOString().slice(0, 10), cls: 'done' }]
+  const chainNodes = [{ title: 'Submitted by', who: ncRequester(rec), note: new Date(c.started).toISOString().slice(0, 10), cls: 'done' }]
     .concat(c.steps.map((s, i) => ({ title: `Step ${i + 1}`, who: s.approver, note: s.state === 'Approved' ? 'Approved' : s === current ? `Due: ${fmtLong(due)}` : 'After prev. approval', cls: s.state === 'Approved' ? 'done' : s === current ? 'cur' : '', n: i + 1 })));
 
   root.innerHTML = `
@@ -66,7 +66,7 @@ function ncRenderApprovePage(inboxId) {
     <div class="ap-body">
       <aside class="ap-side">
         <button class="ap-preview" onclick="ncPreviewDoc('${item.ncDoc}')">&#128065; Preview Document</button>
-        ${side('Owner', InnomickCMSData.currentUser.name)}
+        ${side('Owner', ncRequester(rec))}
         ${side('Contract ID', rec.refNo)}
         ${side('Contract Name', f.name)}
         ${side('Contract Type', rec.contractType)}
@@ -96,7 +96,7 @@ function ncRenderApprovePage(inboxId) {
         <div class="ap-scroll">
           <div class="ap-label">SUBMISSION DETAILS</div>
           <div class="ap-card ap-grid3">
-            <div><label>REQUESTED BY</label><div>${InnomickCMSData.currentUser.name}</div></div>
+            <div><label>REQUESTED BY</label><div>${ncRequester(rec)}</div></div>
             <div><label>DOCUMENT VERSION</label><div>${doc.versions[0].version}</div></div>
             <div><label>SUBMISSION DATE</label><div>${new Date(c.started).toISOString().slice(0, 10)}</div></div>
           </div>
