@@ -39,7 +39,7 @@
     try {
       const other = Number(localStorage.getItem(STAMP_KEY) || 0);
       if (other <= lastSync) return;
-      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      const saved = JSON.parse(renamed(localStorage.getItem(STORE_KEY)) || 'null');
       if (!saved || !saved.data) return;
       Object.keys(saved.data).forEach(k => { D[k] = saved.data[k]; });
       Object.keys(NCState.records).forEach(k => { delete NCState.records[k]; });
@@ -48,6 +48,11 @@
       lastSync = other;
       if (typeof parseAndSwitchRoute === 'function') parseAndSwitchRoute(location.hash);
     } catch (e) { /* keep this tab's data */ }
+  }
+  // The default account was renamed from Imran Hussain to Zubair: data saved before that follows the new name
+  function renamed(raw) {
+    return raw && raw.replace(/Imran Hussain/g, 'Zubair').replace(/imran\.h@/g, 'zubair@').replace(/"imran"/g, '"zubair"')
+      .replace(/"(initials|avatar)":"IH"/g, '"$1":"Z"');
   }
   window.cmsSaveState = saveState;
   window.cmsResetData = () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); };
@@ -59,7 +64,7 @@
       localStorage.removeItem(STORE_KEY);
       history.replaceState(null, '', location.pathname + location.hash);
     }
-    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    const saved = JSON.parse(renamed(localStorage.getItem(STORE_KEY)) || 'null');
     lastSync = Number(localStorage.getItem(STAMP_KEY) || (saved && saved.saved) || 0);
     if (saved && saved.data) {
       Object.keys(saved.data).forEach(k => { D[k] = saved.data[k]; });

@@ -13,7 +13,7 @@
   // Accounts that are not limited to the one department they sit in.
   // 'all' = every branch / department; a list = only those.
   const WIDE_ACCESS = {
-    'Imran Hussain': { branches: 'all', departments: 'all' },
+    'Zubair': { branches: 'all', departments: 'all' },
     'Daniel Mathew': { branches: 'all', departments: 'all' },
     'Priya Nair': { branches: ['Innomick'], departments: ['Information Technology', 'Facilities Management'] },
     'Thomas George': { branches: ['Innomick Kuwait Tech Hub'], departments: ['Medical Insurance', 'Facilities Management'] }

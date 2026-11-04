@@ -1045,7 +1045,7 @@ function switchApprovalTab(tab) {
 }
 
 // Seeded approvals have no chain behind them, so they wait on the default demo user
-const CMS_DEFAULT_USER = 'Imran Hussain';
+const CMS_DEFAULT_USER = 'Zubair';
 
 function cmsApprovalSteps(item) {
   if (item.mgId) {
@@ -1737,7 +1737,7 @@ function addWorkflowStepItem() {
             <label class="modal-label">Approver</label>
             <select class="cms-select">
               <option>Sara Thomas</option>
-              <option>Imran Hussain</option>
+              <option>Zubair</option>
               <option>Arjun Mehta</option>
             </select>
           </div>
@@ -2072,7 +2072,7 @@ function switchUserProfile(profileKey) {
   if (emailEl) emailEl.textContent = profile.email;
 
   // Update active state in menu items
-  ['arjun', 'sara', 'imran'].forEach(k => {
+  ['arjun', 'sara', 'zubair'].forEach(k => {
     const item = document.getElementById('profileItem' + k.charAt(0).toUpperCase() + k.slice(1));
     if (item) {
       if (k === profileKey) item.classList.add('active');

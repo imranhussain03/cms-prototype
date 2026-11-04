@@ -6,11 +6,11 @@
 
 const InnomickCMSData = {
   currentUser: {
-    name: "Imran Hussain",
+    name: "Zubair",
     title: "Lead Cloud Solutions Consultant",
     department: "Information Technology",
-    email: "imran.h@innomicktechnologies.com",
-    avatar: "IH",
+    email: "zubair@innomicktechnologies.com",
+    avatar: "Z",
     role: "Contract Owner / Approver"
   },
 
@@ -577,10 +577,10 @@ const InnomickCMSData = {
       startDate: "01 Nov 2026",
       endDate: "31 Oct 2029",
       status: "Active",
-      owner: "Imran Hussain",
+      owner: "Zubair",
       description: "Direct reserve instance agreement for multi-region Kubernetes clusters and database backends.",
       versions: [
-        { no: "1.2", date: "12 Oct 2026", user: "Imran Hussain", comment: "Commercial term discount renegotiated to 18%" },
+        { no: "1.2", date: "12 Oct 2026", user: "Zubair", comment: "Commercial term discount renegotiated to 18%" },
         { no: "1.0", date: "15 Sep 2026", user: "Finance Team", comment: "Initial submission" }
       ]
     },
@@ -598,7 +598,7 @@ const InnomickCMSData = {
       startDate: "15 Nov 2026",
       endDate: "14 Nov 2027",
       status: "Expiring Soon",
-      owner: "Imran Hussain",
+      owner: "Zubair",
       description: "Annual M365 E5 enterprise licensing bundle with Defender for Cloud security features.",
       versions: [
         { no: "2.0", date: "08 Oct 2026", user: "Kevin Brooks", comment: "Renewal quote received" }
@@ -638,10 +638,10 @@ const InnomickCMSData = {
       startDate: "01 Dec 2026",
       endDate: "30 Nov 2027",
       status: "Pending Signature",
-      owner: "Imran Hussain",
+      owner: "Zubair",
       description: "APM tracing, log management, and synthetics for Innomick microservices.",
       versions: [
-        { no: "1.0", date: "10 Oct 2026", user: "Imran Hussain", comment: "Draft sent for signature" }
+        { no: "1.0", date: "10 Oct 2026", user: "Zubair", comment: "Draft sent for signature" }
       ]
     },
     {
@@ -698,10 +698,10 @@ const InnomickCMSData = {
       startDate: "15 Oct 2026",
       endDate: "14 Oct 2027",
       status: "Active",
-      owner: "Imran Hussain",
+      owner: "Zubair",
       description: "Multi-cluster enterprise warehouse credits for AI and predictive analytics.",
       versions: [
-        { no: "1.0", date: "14 Oct 2026", user: "Imran Hussain", comment: "Executed contract" }
+        { no: "1.0", date: "14 Oct 2026", user: "Zubair", comment: "Executed contract" }
       ]
     }
   ],
@@ -1104,7 +1104,7 @@ const InnomickCMSData = {
       type: "Cloud Infrastructure",
       category: "Engineering",
       updated: "05 Oct 2026",
-      author: "Imran Hussain"
+      author: "Zubair"
     },
     {
       id: "TPL-03",
@@ -1431,7 +1431,7 @@ const InnomickCMSData = {
         title: "Palo Alto Networks Next-Gen Firewall Cluster Subscriptions",
         vendor: "Palo Alto Networks",
         action: "Approved",
-        actor: "Imran Hussain",
+        actor: "Zubair",
         date: "28 Sep 2026",
         notes: "Approved based on SOC2 compliance requirement."
       },
@@ -1441,7 +1441,7 @@ const InnomickCMSData = {
         title: "Oracle Autonomous Database Cloud Platform Support",
         vendor: "Oracle Cloud Infrastructure (OCI)",
         action: "Approved",
-        actor: "Imran Hussain",
+        actor: "Zubair",
         date: "15 Jan 2026",
         notes: "Budget verified with finance head."
       }
@@ -1606,12 +1606,12 @@ const InnomickCMSData = {
         noticePeriod: 0
       }
     },
-    imran: {
-      key: "imran",
-      name: "Imran Hussain",
-      initials: "IH",
+    zubair: {
+      key: "zubair",
+      name: "Zubair",
+      initials: "Z",
       title: "Lead Cloud Solutions Consultant",
-      email: "imran.h@innomicktechnologies.com",
+      email: "zubair@innomicktechnologies.com",
       badgeCount: 42,
       stats: {
         pendingApprovals: 42,
@@ -1633,7 +1633,7 @@ const InnomickCMSData = {
       fileName: "Legacy_EMC_Storage_Array_Support_2024.xlsx",
       recordsCount: 14,
       importedDate: "05 Oct 2026",
-      importedBy: "Imran Hussain",
+      importedBy: "Zubair",
       status: "Successfully Ingested"
     },
     {

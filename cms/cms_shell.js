@@ -114,7 +114,7 @@ function spToggleAccount(e) {
       </div>
       <div class="sp-acc-switch">
         <div class="sp-muted" style="margin-bottom: 4px;">Switch demo user</div>
-        ${['arjun', 'sara', 'imran'].map(k => {
+        ${['arjun', 'sara', 'zubair'].map(k => {
           const p = InnomickCMSData.userProfiles && InnomickCMSData.userProfiles[k];
           return p ? `<a href="javascript:void(0)" class="sp-link" onclick="switchUserProfile('${k}'); spCloseMenus();">${p.name}</a>` : '';
         }).join('')}

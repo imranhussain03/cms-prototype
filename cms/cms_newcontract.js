@@ -26,7 +26,7 @@ const NC_DIRECTORY = [
   { name: 'Aisha Rahman', role: 'Department Manager', branch: 'Innomick', department: 'Facilities Management' },
   { name: 'Leo Fernandes', role: 'Procurement Lead', branch: 'Innomick Dubai HQ (UAE)', department: 'Information Technology' },
   { name: 'Arjun Mehta', role: 'Medical & Corporate Approver', branch: 'Innomick', department: 'Medical Insurance' },
-  { name: 'Imran Hussain', role: 'Lead Cloud Solutions Consultant', branch: 'Innomick', department: 'Information Technology' },
+  { name: 'Zubair', role: 'Lead Cloud Solutions Consultant', branch: 'Innomick', department: 'Information Technology' },
   { name: 'Nisha Kapoor', role: 'Department Manager', branch: 'Innomick Dubai HQ (UAE)', department: 'Medical Insurance' },
   { name: 'Rahul Verma', role: 'Department Manager', branch: 'Innomick Dubai HQ (UAE)', department: 'Facilities Management' },
   { name: 'Fatima Noor', role: 'Department Manager', branch: 'Innomick Kuwait Tech Hub', department: 'Information Technology' },
