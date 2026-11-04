@@ -19,14 +19,18 @@ const TplState = {
 // Every field already defined in the system (live template fields + fields created here)
 function tplFieldLibrary() {
   const lib = {};
-  const add = f => { if (f && f.name && !lib[f.name.toLowerCase()]) lib[f.name.toLowerCase()] = f; };
+  const add = f => { if (f && f.name && !lib[f.name]) lib[f.name] = f; };
   (InnomickCMSData.customFields || []).forEach(add);
-  if (window.UAT_TEMPLATES) UAT_TEMPLATES.list.forEach(t => t.fields.forEach(add));
+  if (window.UAT_TEMPLATES) {
+    UAT_TEMPLATES.list.forEach(t => t.fields.forEach(add));
+    (UAT_TEMPLATES.fields || []).forEach(add);
+  }
   return lib;
 }
 
 function tplMapPlaceholder(name) {
-  const f = tplFieldLibrary()[name.toLowerCase()];
+  // UAT only auto-maps a placeholder whose name is exactly an existing field name
+  const f = tplFieldLibrary()[name];
   return { name, field: f ? { ...f, name } : null, auto: !!f };
 }
 
@@ -36,12 +40,17 @@ function tplRenderEditor(param) {
     Object.assign(TplState, { mode: 'create', contractType: p.slice(4) || 'Service', template: null, fileName: '', fileSize: 0, designHtml: '', placeholders: [] });
   } else {
     const tpl = InnomickCMSData.templates.find(t => t.id === p) || InnomickCMSData.templates[0];
+    // Like the live page, the mapping table lists placeholders in the order they appear in the document
+    const doc = tplDesignHtml(tpl);
+    const at = f => { const i = Math.max(doc.indexOf(`{${f.name}}`), doc.indexOf(`{${f.name.replace(/ /g, '_')}}`)); return i < 0 ? Infinity : i; };
     Object.assign(TplState, {
       mode: 'edit', template: tpl, contractType: tpl.contractType || 'Service',
       fileName: tpl.fileName || `${tpl.name}.docx`, fileSize: tpl.fileSize || 0, designHtml: tpl.designHtml || '',
-      placeholders: (tpl.fields || []).map(f => ({ name: f.name, field: f, auto: true }))
+      placeholders: (tpl.fields || []).slice().sort((a, b) => at(a) - at(b)).map(f => ({ name: f.name, field: f, auto: true }))
     });
   }
+  const root = document.getElementById('tplEditorRoot');
+  if (root) root.innerHTML = '';
   tplDraw();
 }
 
@@ -58,20 +67,20 @@ function tplDraw() {
       <div class="tpl-ed-head">
         <button class="tpl-ed-back" title="Back" onclick="switchRoute('templates')">&#8249;</button>
         <h2>${isCreate ? 'Create' : 'Edit'} Contract Template</h2>
-        <button class="btn-teal-primary" onclick="tplSave()">+ ${isCreate ? 'Save' : 'Update'} Template</button>
+        <button class="btn-teal-primary tpl-ed-save" onclick="tplSave()"><span>+</span> ${isCreate ? 'Save' : 'Update'} Template</button>
       </div>
-      ${isCreate ? `<div class="tpl-type-caption">Create Template for Contract Type - ${TplState.contractType}</div>` : ''}
-      <div class="tpl-ed-card">
-        <div class="tpl-form-row">
-          <label>Template Name</label>
-          <input type="text" class="detail-field-input" id="tplEditorName" placeholder="Enter Template Name" value="${(name || '').replace(/"/g, '&quot;')}">
+      <div class="tpl-ed-form">
+        ${isCreate ? `<div class="tpl-type-caption">Create Template for Contract Type - ${TplState.contractType}</div>` : ''}
+        <div class="tpl-ed-name-row">
+          <label for="tplEditorName">Template Name</label>
+          <input type="text" class="tpl-ed-name" id="tplEditorName" placeholder="Enter Template Name" value="${(name || '').replace(/"/g, '&quot;')}">
         </div>
-        <div class="tpl-form-row tpl-form-row-top">
-          <label>${TplState.fileName ? 'Uploaded' : 'Upload'} Contract Template</label>
-          <div>
+        <div class="tpl-ed-upload-label">${TplState.fileName ? 'Uploaded' : 'Upload'} Contract Template</div>
+        <div>
             ${TplState.fileName ? `
               <div class="tpl-file-chip">
-                <span>&#128196; <strong>${TplState.fileName}</strong><em>${kb || (isCreate ? ' (New file)' : ' (Existing file)')}</em></span>
+                <span class="tpl-file-icon">&#128196;</span>
+                <div class="tpl-file-text"><strong>${TplState.fileName}</strong><em>${kb ? kb.trim() : isCreate ? '(New file)' : '(Existing file)'}</em></div>
                 <button class="tpl-file-remove" title="Remove file" onclick="tplRemoveFile()">&#10005;</button>
               </div>` : `
               <label class="file-drop-zone tpl-drop" id="tplDropZone">
@@ -79,9 +88,8 @@ function tplDraw() {
                 <div style="font-size: 14px; font-weight: 700; color: #334155;">Browse</div>
                 <div style="font-size: 12px; color: #64748b;">Drag &amp; drop file here, or browse</div>
                 <div style="font-size: 11px; color: #94a3b8;">Supports: Docx (Max 50MB)</div>
-                <input type="file" accept=".docx" style="display: none;" onchange="tplHandleFile(this.files[0])">
+                <input type="file" accept=".docx,.doc,.htm,.html,.txt" style="display: none;" onchange="tplHandleFile(this.files[0])">
               </label>`}
-          </div>
         </div>
       </div>
 
@@ -95,7 +103,7 @@ function tplDraw() {
                   <td ${/[؀-ۿ]/.test(ph.name) ? 'dir="rtl" style="text-align:left;"' : ''}>${ph.name}</td>
                   <td>${ph.field ? `<input class="tpl-map-field" disabled value="${ph.field.label.replace(/"/g, '&quot;')}">` : 'N/A'}</td>
                   <td>${ph.field
-                    ? `<label class="tpl-map-ok"><input type="checkbox" checked onclick="return false"> ${ph.auto ? 'Auto-Mapped' : 'Mapped'}</label>`
+                    ? `<label class="tpl-map-ok"><input type="checkbox" checked onclick="return false"> Auto-Mapped</label>`
                     : `<button class="btn-teal-primary tpl-new-field" onclick="tplOpenNewField(${i})">+ Create New Field</button>`}</td>
                 </tr>`).join('')}
             </tbody>
@@ -113,15 +121,19 @@ function tplDraw() {
 
 async function tplHandleFile(file) {
   if (!file) return;
-  if (!/\.docx$/i.test(file.name)) {
-    showToast('Only .docx templates are supported', 'info');
+  if (!/\.(docx|doc|html?|txt)$/i.test(file.name)) {
+    showToast('Please upload a Word document (.docx or .doc)', 'info');
+    return;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    showToast(`${file.name} exceeds the 50MB limit`, 'info');
     return;
   }
   let parsed = { names: [], html: '' };
   try {
-    parsed = await tplReadDocx(file);
+    parsed = await tplReadAny(file);
   } catch (err) {
-    showToast('Could not read this document', 'info');
+    showToast(err.userMessage || 'Could not read this document', 'info');
     return;
   }
   TplState.fileName = file.name;
@@ -181,7 +193,7 @@ function tplSave() {
   }
   if (!TplState.fileName) { showToast('Please upload the contract template document', 'info'); return; }
   if (TplState.placeholders.some(p => !p.field)) {
-    showToast('Create a field for every unmapped placeholder before saving', 'info');
+    tplShowAlert('Every Fields Should be Created and Mapped.');
     return;
   }
   const fields = TplState.placeholders.map(p => ({ ...p.field, name: p.name }));
@@ -239,6 +251,33 @@ async function tplDocxXml(file) {
 
 // Bookmark names like FIELD_CEOName -> CEOName (the prefix is only a marker)
 function tplCleanName(n) { return n.replace(/^FIELD_/i, '').trim(); }
+
+// Reads any document a person is likely to attach: a real .docx (zip), a Word file saved
+// as a web page (which is what this prototype's own Download produces), or plain text
+async function tplReadAny(file) {
+  const head = new Uint8Array(await file.arrayBuffer());
+  if (head[0] === 0x50 && head[1] === 0x4b) return tplReadDocx(file);
+  if (head[0] === 0xd0 && head[1] === 0xcf && head[2] === 0x11 && head[3] === 0xe0) {
+    const err = new Error('binary doc');
+    err.userMessage = 'This is an old Word 97-2003 file. Open it in Word, choose Save As > Word Document (.docx), then upload it.';
+    throw err;
+  }
+  const text = new TextDecoder('utf-8').decode(head).replace(/^\uFEFF/, '');
+  let html;
+  if (/^\s*</.test(text)) {
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    doc.querySelectorAll('script, iframe, object, embed, link, meta, title').forEach(el => el.remove());
+    doc.querySelectorAll('*').forEach(el => [...el.attributes].forEach(a => { if (/^on/i.test(a.name)) el.removeAttribute(a.name); }));
+    html = doc.body ? doc.body.innerHTML : '';
+  } else {
+    const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    html = text.split(/\r?\n/).filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('');
+  }
+  const names = [];
+  const seen = new Set();
+  html.replace(/\{([^{}<>]{1,60})\}/g, (m, n) => { const c = tplCleanName(n); if (c && !seen.has(c.toLowerCase())) { seen.add(c.toLowerCase()); names.push(c); } return m; });
+  return { names, html };
+}
 
 async function tplReadDocx(file) {
   const xml = await tplDocxXml(file);
@@ -315,30 +354,84 @@ async function tplReadDocx(file) {
 // ---------------------------------------------------------------------------
 function tplRenderViewer(templateId) {
   const root = document.getElementById('tplViewerRoot');
-  const tpl = InnomickCMSData.templates.find(t => t.id === templateId);
   if (!root) return;
-  if (!tpl) { switchRoute('templates'); return; }
-
-  const type = templateContractType(tpl);
+  // A request's letter or draft ("DOC:<request id>:<letter|draft>") opens in the same viewer, as on the live site
+  const docRef = String(templateId || '').match(/^DOC:(.+):(letter|draft)$/);
+  let tpl = null, fileName, docHtml, back = "switchRoute('templates')";
+  if (docRef) {
+    const rec = NCState.records[docRef[1]];
+    if (!rec) { switchRoute('requests'); return; }
+    NCState.current = rec;
+    const d = rec.docs[docRef[2]] || {};
+    d.stamp = d.stamp || String(Date.now());
+    fileName = `${rec.refNo.replace(/\//g, '-')} ${docRef[2] === 'letter' ? 'Request Letter' : 'Draft'} ${d.stamp}`;
+    docHtml = ncDocHtml(docRef[2]);
+    back = `location.hash = '${(CMSState.docBack || '#/new-contract-details/' + rec.id).replace(/'/g, '')}'`;
+  } else {
+    tpl = InnomickCMSData.templates.find(t => t.id === templateId);
+    if (!tpl) { switchRoute('templates'); return; }
+    fileName = (tpl.fileName || `${tpl.name}.docx`).replace(/\.docx$/i, '');
+  }
+  const type = tpl ? templateContractType(tpl) : '';
   const code = { Service: 'SVC', Purchase: 'PUR', Construction: 'CON' }[type];
-  const fileName = (tpl.fileName || `${tpl.name}.docx`).replace(/\.docx$/i, '');
   const row = (en, ar) => `<tr><td>${en}</td><td class="tpl-doc-ar" dir="rtl">${ar}</td></tr>`;
 
+  const user = InnomickCMSData.currentUser.name;
+  const i = (d, w = 16) => `<svg width="${w}" height="${w}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const tool = (d, title, caret) => `<span class="wo-tool" title="${title}">${i(d)}${caret ? '<span class="wo-caret">&#8964;</span>' : ''}</span>`;
   root.innerHTML = `
-    <button class="tpl-view-back" title="Back to templates" onclick="switchRoute('templates')">&#8592;</button>
-    <div class="nc-word-shell tpl-view-shell">
-      <div class="tpl-view-titlebar">
-        <span class="tpl-view-word">W</span>
-        <span class="tpl-view-file">${fileName}</span>
-        <span class="tpl-view-cloud">&#9729;</span>
+    <button class="tpl-view-back wo-back" title="Back" onclick="${back}">&#8592;</button>
+    <div class="wo-frame">
+      <div class="wo-top">
+        <span class="wo-waffle">${i('<circle cx="3" cy="3" r=".9"/><circle cx="8" cy="3" r=".9"/><circle cx="13" cy="3" r=".9"/><circle cx="3" cy="8" r=".9"/><circle cx="8" cy="8" r=".9"/><circle cx="13" cy="8" r=".9"/><circle cx="3" cy="13" r=".9"/><circle cx="8" cy="13" r=".9"/><circle cx="13" cy="13" r=".9"/>', 18)}</span>
+        <span class="wo-word-icon">W</span>
+        <span class="wo-file" title="${fileName}">${fileName}</span>
+        <span class="wo-saved" title="Saved">${i('<path d="M4.5 12.5h7a3 3 0 0 0 .4-6 4 4 0 0 0-7.7 1 2.5 2.5 0 0 0 .3 5z"/><path d="M6.3 9.4l1.3 1.3 2.4-2.6"/>', 18)}</span>
+        <div class="wo-search">${i('<circle cx="7" cy="7" r="4.5"/><path d="M10.3 10.3L14 14"/>', 14)}<span>Search for tools, help, and more (Alt + Q)</span></div>
+        <span class="wo-gear" title="Settings">${i('<circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/>', 18)}</span>
+        <span class="wo-avatar" title="${user}">${user.charAt(0)}</span>
       </div>
-      <div class="nc-word-menubar">
+      <div class="wo-menu">
         <span>File</span><span class="active">Home</span><span>Insert</span><span>Layout</span><span>References</span><span>Review</span><span>View</span><span>Help</span>
-        <span style="margin-left: auto; font-size: 12px; color: #64748b;">Viewing (read-only)</span>
+        <div class="wo-menu-right">
+          <span class="wo-pill">${i('<path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/>', 14)} Comments</span>
+          <span class="wo-pill">${i('<path d="M1.5 9l3-4 3 5 3-6 4 5"/>', 14)} Catch up</span>
+          <span class="wo-pill">${i('<path d="M10.5 2.5l3 3-8 8h-3v-3z"/>', 14)} Editing <span class="wo-caret">&#8964;</span></span>
+          <span class="wo-share">${i('<circle cx="5" cy="6" r="2"/><path d="M1.5 13a3.5 3.5 0 0 1 7 0M10 4.5h4.5M12.2 2.3v4.4"/>', 14)} Share <span class="wo-caret">&#8964;</span></span>
+        </div>
       </div>
-      <div class="nc-word-canvas">
-        <div class="nc-word-page tpl-doc-page">
-          ${tplDesignHtml(tpl) ? tplDesignHtml(tpl) : `
+      <div class="wo-ribbon">
+        ${tool('<path d="M5 3.5L2.5 6 5 8.5"/><path d="M2.5 6H10a3.5 3.5 0 0 1 0 7H7"/>', 'Undo', true)}
+        ${tool('<rect x="3" y="3" width="10" height="11" rx="1"/><path d="M6 2h4v2.5H6z"/>', 'Paste', true)}
+        ${tool('<path d="M3 2.5h8v3H3zM11 4h2v3.5H7.5V10M6.5 10h2v4h-2z"/>', 'Format Painter')}
+        <span class="wo-sep"></span>
+        <span class="wo-box wo-font">Times New Ro... <span class="wo-caret">&#8964;</span></span>
+        <span class="wo-box wo-size">12 <span class="wo-caret">&#8964;</span></span>
+        <span class="wo-tool wo-txt">A<sup>&#708;</sup></span><span class="wo-tool wo-txt">A<sup>&#709;</sup></span>
+        <span class="wo-sep"></span>
+        <span class="wo-tool wo-txt"><b>B</b></span><span class="wo-tool wo-txt"><i>I</i></span><span class="wo-tool wo-txt"><u>U</u></span>
+        ${tool('<path d="M4 10l5-7 3 2-5 7H4z"/><path d="M2 14.5h12" stroke="#f5d000" stroke-width="2"/>', 'Highlight', true)}
+        <span class="wo-tool wo-txt wo-color" title="Font Color">A<span class="wo-caret">&#8964;</span></span>
+        <span class="wo-tool wo-txt">&middot;&middot;&middot;</span>
+        <span class="wo-sep"></span>
+        ${tool('<circle cx="3" cy="4" r=".8"/><circle cx="3" cy="8" r=".8"/><circle cx="3" cy="12" r=".8"/><path d="M6 4h8M6 8h8M6 12h8"/>', 'Bullets', true)}
+        ${tool('<path d="M2.5 3h1v3M2.5 9.5h1.5l-1.5 2h1.5M6 4h8M6 8h8M6 12h8"/>', 'Numbering', true)}
+        ${tool('<path d="M2 3h12M6 6.5h8M6 9.5h8M2 13h12M2 6.5l2 1.5-2 1.5"/>', 'Increase Indent')}
+        ${tool('<path d="M2 3h12M2 6.5h12M2 9.5h12M2 13h8"/>', 'Align', true)}
+        ${tool('<rect x="2.5" y="2.5" width="11" height="11"/><path d="M2.5 8h11M8 2.5v11"/>', 'Borders', true)}
+        ${tool('<path d="M3 9l5-6 5 6-5 4z"/>', 'Shading', true)}
+        <span class="wo-tool wo-txt">&middot;&middot;&middot;</span>
+        <span class="wo-sep"></span>
+        <span class="wo-box wo-style">Normal <span class="wo-caret">&#8964;</span></span>
+        <span class="wo-sep"></span>
+        ${tool('<circle cx="7" cy="7" r="4.5"/><path d="M10.3 10.3L14 14"/>', 'Find', true)}
+        ${tool('<rect x="6" y="1.5" width="4" height="8" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2.5"/>', 'Dictate', true)}
+        <span class="wo-editor">${i('<path d="M2 13.5h12M4 11l6.5-8.5 2 1.5L6 12.5H4z"/>', 16)} Editor</span>
+      </div>
+      <div class="wo-canvas">
+        <span class="wo-pane" title="Navigation">${i('<rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M6 2.5v11"/>', 16)}</span>
+        <div class="wo-page tpl-doc-page">
+          ${docHtml !== undefined ? docHtml : tplDesignHtml(tpl) ? tplDesignHtml(tpl) : `
           <p><strong><u>${type} Contract type Template – ${code}:</u></strong></p>
           <table class="tpl-doc-table">
             ${row('<div style="text-align:center"><u>“Contract Short Description”</u></div>Ref: “Based on Policy” - <u>Date</u>: {Date}',
@@ -347,12 +440,19 @@ function tplRenderViewer(templateId) {
           </table>`}
         </div>
       </div>
+      <div class="wo-status">
+        <span id="woPages">Page 1 of 1</span><span id="woWords">0 words</span><span>English (India)</span><span>Text Predictions: Off</span><span>Editor Suggestions: Showing</span>
+        <span class="wo-status-right"><span>&minus;</span><span class="wo-zoom"><span></span></span><span>+</span><span>100%</span><span>Fit</span><span>Give Feedback to Microsoft</span></span>
+      </div>
     </div>`;
+  const words = (root.querySelector('.wo-page').textContent.match(/\S+/g) || []).length;
+  document.getElementById('woWords').textContent = `${words} words`;
+  document.getElementById('woPages').textContent = `Page 1 of ${Math.max(1, Math.ceil(words / 350))}`;
 }
 
 
 // ---------------------------------------------------------------------------
-// Use the live template list exported from UAT (client names already replaced)
+// The ten Innomick contract templates (bilingual, English only and Arabic only)
 // ---------------------------------------------------------------------------
 if (window.UAT_TEMPLATES) {
   InnomickCMSData.templates = UAT_TEMPLATES.list.map((t, i) => ({
@@ -366,6 +466,26 @@ if (window.UAT_TEMPLATES) {
     author: 'Contract Admin',
     fileName: `${t.name}.docx`,
     fields: t.fields,
-    design: t.design
+    design: t.design,
+    base: 4
   }));
+  window.CMS_BASE_TEMPLATES = InnomickCMSData.templates.slice();
+}
+
+// Same popup the live page shows when a template still has unmapped placeholders
+function tplShowAlert(message) {
+  let m = document.getElementById('tplAlertModal');
+  if (!m) {
+    m = document.createElement('div');
+    m.className = 'modal-overlay';
+    m.id = 'tplAlertModal';
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `
+    <div class="modal-box tpl-alert-box">
+      <div class="tpl-alert-head"><button class="tpl-alert-x" title="Close" onclick="closeModal('tplAlertModal')">&#10005;</button></div>
+      <div class="tpl-alert-msg">${message}</div>
+      <div class="tpl-alert-foot"><button class="tpl-alert-ok" onclick="closeModal('tplAlertModal')">Okay</button></div>
+    </div>`;
+  openModal('tplAlertModal');
 }

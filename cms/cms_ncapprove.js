@@ -35,6 +35,10 @@ function ncRenderApprovePage(inboxId) {
   const due = new Date(c.started); due.setDate(due.getDate() + 2);
   const current = cmsMyStep(c.steps);
   const canDecide = ctx.canDecide && NCApprove.fromInbox && !!current;
+  const statusView = !NCApprove.fromInbox;
+  if (statusView && NCApprove.tab !== 'reviews' && NCApprove.tab !== 'details' && NCApprove.tab !== 'history') NCApprove.tab = 'reviews';
+  if (!statusView && NCApprove.tab === 'history') NCApprove.tab = 'reviews';
+  const acted = c.steps.map((s, i) => ({ s, i })).filter(x => x.s.actedOn);
   const progressPct = Math.round((c.done / c.steps.length) * 100);
   const reqType = rec.mode ? NC_MODES[rec.mode].requestType : 'New';
   const docType = `${reqType} ${item.ncDoc === 'letter' ? 'Request Letter Draft' : 'Contract'}`;
@@ -51,14 +55,14 @@ function ncRenderApprovePage(inboxId) {
 
   root.innerHTML = `
     <div class="ap-header">
-      <button class="ap-back" onclick="switchRoute('approvals')">&#8249; Back</button>
+      ${CMSState.prevRoute === 'approvals' ? `<button class="ap-back" onclick="switchRoute('approvals')">&#8249; Back</button>` : ''}
       <span class="ap-doc-icon">&#128196;</span>
       <div class="ap-header-text">
         <strong>${item.name}</strong>
         <span>${item.name} &middot; ${rec.refNo}</span>
       </div>
       <div class="ap-header-actions">
-        <button class="btn-outline-teal" onclick="ncApprovePrevious()">&#9719; View Previous Approvals</button>
+        ${statusView ? '' : `<button class="btn-outline-teal" onclick="ncApprovePrevious()">&#9719; View Previous Approvals</button>`}
         <button class="btn-teal-primary" onclick="ncViewCertificate('${item.ncDoc}')">&#128737; View Certificate</button>
       </div>
     </div>
@@ -73,6 +77,7 @@ function ncRenderApprovePage(inboxId) {
         ${side('Request Type', reqType)}
         ${side('Document Type', docType)}
         ${side('Contract Value', Number(f.value || 0).toLocaleString())}
+        ${side('Vendor Name', (f.vendors[f.selectedVendor] || {}).name)}
         <div class="ap-side-field"><label>Department</label><div><span class="ap-pill">${rec.department}</span></div></div>
         ${side('Branch', rec.branch)}
         ${side('Start Date', f.startDate ? fmtLong(f.startDate) : '')}
@@ -80,7 +85,7 @@ function ncRenderApprovePage(inboxId) {
       </aside>
 
       <main class="ap-main">
-        <div class="ap-decision">
+        ${statusView ? '' : `<div class="ap-decision">
           ${canDecide ? `<div><strong>Your decision</strong><span>You are the current approver for this document</span></div>` : `
           <div><strong>Approval Status: <span class="ap-status-${doc.status.replace(/\s+/g, '')}">${doc.status}</span></strong>
             <span>${current ? `Waiting for ${current.approver} (${current.title})` : 'This approval cycle is complete'}</span></div>
@@ -91,7 +96,7 @@ function ncRenderApprovePage(inboxId) {
             <button class="ap-btn-change" onclick="ncApproveAct('Request Change')">&#9998; Request Change</button>
             <button class="btn-teal-primary" onclick="ncApproveAct('Approve')">&#10003; Approve</button>
           </div>` : ''}
-        </div>
+        </div>`}
 
         <div class="ap-scroll">
           <div class="ap-label">SUBMISSION DETAILS</div>
@@ -116,8 +121,14 @@ function ncRenderApprovePage(inboxId) {
             <div class="ap-tabs">
               <button class="${NCApprove.tab === 'reviews' ? 'active' : ''}" onclick="NCApprove.tab = 'reviews'; ncRenderApprovePage('${item.id}')">Reviews</button>
               <button class="${NCApprove.tab === 'details' ? 'active' : ''}" onclick="NCApprove.tab = 'details'; ncRenderApprovePage('${item.id}')">Details</button>
+              ${statusView ? `<button class="${NCApprove.tab === 'history' ? 'active' : ''}" onclick="NCApprove.tab = 'history'; ncRenderApprovePage('${item.id}')">History</button>` : ''}
             </div>
-            ${NCApprove.tab === 'reviews' ? `
+            ${NCApprove.tab === 'history' ? `
+              <div class="ap-label">APPROVAL HISTORY</div>
+              ${acted.length ? acted.map(({ s, i }) => `
+                <div class="ap-history-row"><b>Step ${i + 1} &middot; ${s.approver}</b><span>${s.state}</span><small>${s.actedOn}</small>${s.remarks ? `<div>${s.remarks}</div>` : ''}</div>`).join('')
+                : '<p class="ap-history-none">No approval actions have been recorded for this document yet.</p><p class="ap-empty">No history to show</p>'}` :
+            NCApprove.tab === 'reviews' ? `
               <div class="ap-label">APPROVERS' REVIEWS</div>
               ${c.steps.map((s, i) => {
                 const [badge, cls, sub] = stepState(s, i);
@@ -145,7 +156,12 @@ function ncRenderApprovePage(inboxId) {
         </div>
       </main>
 
-      <aside class="ap-comments">
+      ${statusView ? `<aside class="ap-comments">
+        <div class="ap-label" style="margin-top: 0;">APPROVER COMMENTS</div>
+        <p class="ap-comments-sub">Comments left by approvers on this contract request during review.</p>
+        ${comments.length ? comments.map(cm => `<div class="nc-comment"><strong>${cm.by}</strong><div>${cm.text}</div><small>${cm.on}</small></div>`).join('')
+          : '<p class="ap-empty">No approver comments yet.</p>'}
+      </aside>` : `<aside class="ap-comments">
         <div class="ap-label" style="margin-top: 0;">COMMENTING ON</div>
         <div class="ap-commenting">${rec.refNo} <span class="ap-new">${reqType}</span></div>
         <textarea class="cms-input" id="ncApproveComment" rows="4" placeholder="Add your comment here..." oninput="document.getElementById('ncAddCommentBtn').disabled = !this.value.trim()"></textarea>
@@ -153,7 +169,7 @@ function ncRenderApprovePage(inboxId) {
         <div class="ap-label">COMMENTS</div>
         ${comments.length ? comments.map(cm => `<div class="nc-comment"><strong>${cm.by}</strong><div>${cm.text}</div><small>${cm.on}</small></div>`).join('')
           : '<p class="ap-empty">No comments yet for this request.</p>'}
-      </aside>
+      </aside>`}
     </div>`;
 }
 
@@ -238,4 +254,5 @@ function ncApprovePrevious() {
       : '<p class="ap-empty">No history to show</p>');
   openModal('approvalHistoryModal');
 }
+
 

@@ -18,12 +18,36 @@
   const FILTER_IDS = ['reqFilterBranch', 'reqFilterDept', 'reqFilterVendor', 'reqFilterCategory', 'cntFilterBranch', 'cntFilterDept',
     'cntFilterVendor', 'cntFilterCategory', 'statsFilterBranch', 'statsFilterDept'];
 
+  // Several prototype tabs share one store. A tab nobody is looking at must not write its older
+  // copy over newer work from another tab, so it only saves if it holds the latest data.
+  const STAMP_KEY = STORE_KEY + '-at';
+  let lastSync = 0;
   function saveState() {
     try {
+      const other = Number(localStorage.getItem(STAMP_KEY) || 0);
+      if (other > lastSync && (document.visibilityState !== 'visible' || !document.hasFocus())) return;
       const filters = {};
       FILTER_IDS.forEach(id => { const el = document.getElementById(id); if (el) filters[id] = el.value; });
-      localStorage.setItem(STORE_KEY, JSON.stringify({ data: D, records: NCState.records, filters, saved: Date.now() }));
+      const now = Date.now();
+      localStorage.setItem(STORE_KEY, JSON.stringify({ data: D, records: NCState.records, filters, saved: now }));
+      localStorage.setItem(STAMP_KEY, String(now));
+      lastSync = now;
     } catch (e) { /* storage full or blocked: the prototype still works for this session */ }
+  }
+  // Coming back to a tab picks up what was done in another tab, then redraws the page
+  function loadNewer() {
+    try {
+      const other = Number(localStorage.getItem(STAMP_KEY) || 0);
+      if (other <= lastSync) return;
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      if (!saved || !saved.data) return;
+      Object.keys(saved.data).forEach(k => { D[k] = saved.data[k]; });
+      Object.keys(NCState.records).forEach(k => { delete NCState.records[k]; });
+      Object.assign(NCState.records, saved.records || {});
+      if (NCState.current && NCState.records[NCState.current.id]) NCState.current = NCState.records[NCState.current.id];
+      lastSync = other;
+      if (typeof parseAndSwitchRoute === 'function') parseAndSwitchRoute(location.hash);
+    } catch (e) { /* keep this tab's data */ }
   }
   window.cmsSaveState = saveState;
   window.cmsResetData = () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); };
@@ -36,14 +60,26 @@
       history.replaceState(null, '', location.pathname + location.hash);
     }
     const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    lastSync = Number(localStorage.getItem(STAMP_KEY) || (saved && saved.saved) || 0);
     if (saved && saved.data) {
       Object.keys(saved.data).forEach(k => { D[k] = saved.data[k]; });
       Object.assign(NCState.records, saved.records || {});
       restoredFilters = saved.filters || null;
+      // Data saved before the current template set keeps only templates people created themselves
+      if (window.CMS_BASE_TEMPLATES && !(D.templates || []).some(t => t.base === 4)) {
+        D.templates = (D.templates || []).filter(t => /^TPL-\d{13}$/.test(t.id)).concat(CMS_BASE_TEMPLATES);
+      }
+      // One-time clean-up asked for on 4 Nov: drop the test templates people created, and their fields
+      if (!D.testTemplatesCleared) {
+        D.templates = (D.templates || []).filter(t => !/^TPL-\d{13}$/.test(t.id));
+        D.customFields = [];
+        D.testTemplatesCleared = true;
+      }
     }
   } catch (e) { /* ignore corrupt storage */ }
   window.addEventListener('beforeunload', saveState);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveState(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveState(); else loadNewer(); });
+  window.addEventListener('focus', loadNewer);
   setInterval(saveState, 4000);
 
   // ===========================================================================
@@ -356,6 +392,10 @@
     if (container && CMSState.approvalTab === 'history') return renderHistoryTab(container);
     origRenderApprovals();
     // Outbox rows open the approval details read-only: no Approve / Reject for the requester (bug 11)
+    if (container && CMSState.approvalTab === 'outbox' && !container.querySelector('tbody tr')) {
+      container.innerHTML = `<div class="empty-table-state">You don't have any data in outbox</div>`;
+      return;
+    }
     if (container && CMSState.approvalTab === 'outbox') {
       container.querySelectorAll(`tr[onclick^="switchRoute('approval_review'"]`).forEach(tr => tr.setAttribute('onclick', 'CMSState.reviewReadOnly = true; ' + tr.getAttribute('onclick')));
       container.querySelectorAll('tr[onclick^="openRequestDetails"]').forEach(tr => {
@@ -397,6 +437,7 @@
         sel.value = cur;
       }
     });
+    if (window.cmsApplyScope) cmsApplyScope();   // an account with one branch / department stays locked to it
   }
   const origFilterContracts = window.filterContracts;
   window.filterContracts = function () { refreshFilterOptions(); origFilterContracts(); };
@@ -1248,21 +1289,26 @@
   setTimeout(cmsUpdateNotifBadge, 0);
 })();
 
-// Contract selection pages (Renew / Cancel / Amend / Extend / Complete): Vendor and Category start at "Select..." like UAT
+// Contract selection pages (Renew / Cancel / Amend / Extend / Complete): Vendor starts at "All Vendors" and
+// Category at "Service", as on the live page
 (function () {
   const orig = window.switchRoute;
   window.switchRoute = function (route) {
     const r = orig.apply(this, arguments);
     if (route === 'contract_selection') {
-      ['csFilterVendor', 'csFilterCategory'].forEach(id => {
+      [['csFilterVendor', 'All Vendors'], ['csFilterCategory', 'All Categories']].forEach(([id, label]) => {
         const sel = document.getElementById(id);
         if (!sel) return;
         let o = [...sel.options].find(x => x.value === 'all');
-        if (!o) { o = new Option('Select...', 'all'); sel.insertBefore(o, sel.firstChild); }
-        o.textContent = 'Select...';
+        if (!o) { o = new Option(label, 'all'); sel.insertBefore(o, sel.firstChild); }
+        o.textContent = label;
       });
+      const v = document.getElementById('csFilterVendor');
+      if (v) v.value = 'all';
       const c = document.getElementById('csFilterCategory');
-      if (c && c.value !== 'all') { c.value = 'all'; if (window.applyCSFilters) applyCSFilters(); }
+      if (c && [...c.options].some(o => o.value === 'Service')) c.value = 'Service';
+      [v, c].forEach(sel => { if (sel && typeof uiSyncSelect === 'function') uiSyncSelect(sel); });
+      if (window.applyCSFilters) applyCSFilters();
     }
     return r;
   };

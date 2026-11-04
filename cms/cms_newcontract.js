@@ -973,11 +973,12 @@ function ncDocHtml(key) {
   const design = key === 'draft' ? tplDesignHtml(rec.template) : null;
   if (design) {
     const vals = rec.form.templateValues;
-    const fmt = (fd, v) => fd && fd.type === 'date' && v ? v.split('-').reverse().join('-') : v;
     const byName = Object.fromEntries(ncTemplateFieldDefs(rec).map(fd => [fd.name, fd]));
     return `<div class="tpl-doc-page">${design.replace(/\{([^{}<>]{1,60})\}/g, (m, name) => {
-      const v = vals[name];
-      return v ? `<span class="tpl-filled">${fmt(byName[name], v)}</span>` : m;
+      // {Contract_Title} in a document fills the "Contract Title" field
+      const key = name in byName ? name : name.replace(/_/g, ' ');
+      const v = vals[key];
+      return v ? String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;') : '';
     })}</div>`;
   }
 
@@ -1058,6 +1059,8 @@ function ncDocHtml(key) {
 }
 
 // Word Online style viewer: "<REF> Request Letter <stamp>.docx"
+// A request's letter or draft opens in a pop-up over the page (Word in Review mode), like the live site,
+// so Back never lands somewhere unexpected
 function ncPreviewDoc(key) {
   document.querySelectorAll('.nc-view-menu.open').forEach(m => m.classList.remove('open'));
   const rec = NCState.current;
@@ -1068,8 +1071,12 @@ function ncPreviewDoc(key) {
   document.getElementById('ncDocPreviewFile').textContent = file;
   const page = document.getElementById('ncDocPreviewPage');
   page.innerHTML = ncDocHtml(key);
-  const words = (page.innerText.match(/\S+/g) || []).length;
-  document.getElementById('ncDocPreviewWords').textContent = `Page 1 of 1   ${words} words   English (U.S.)   Text Predictions: Off   Editor Suggestions: Showing`;
+  const words = (page.textContent.match(/\S+/g) || []).length;
+  document.getElementById('ncDocPreviewWords').textContent = `Page 1 of ${Math.max(1, Math.ceil(words / 450))}   ${words} words   English (U.S.)   Text Predictions: Off   Editor Suggestions: Showing`;
+  const avatar = document.querySelector('#ncDocPreviewModal .wv-avatar');
+  if (avatar) avatar.textContent = InnomickCMSData.currentUser.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const note = document.getElementById('ncDocReviewNote');
+  if (note) note.style.display = '';
   openModal('ncDocPreviewModal');
 }
 

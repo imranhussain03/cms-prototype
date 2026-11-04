@@ -693,6 +693,8 @@ label.file-drop-zone { cursor: pointer; }
 .tpl-doc-page table { width: 100%; border-collapse: collapse; margin: 6px 0; }
 .tpl-doc-page td { border: 1px solid #1f2937; padding: 4px 6px; vertical-align: top; }
 .tpl-doc-page p { margin: 0 0 4px; }
+.tpl-doc-page .tpl-sign { margin-top: 18px; }
+.tpl-doc-page .tpl-sign td { border: none; padding: 6px 8px; }
 .tpl-doc-page p[dir="rtl"] { text-align: right; }
 .nc-template-ar-grid {
   grid-column: 1 / -1;

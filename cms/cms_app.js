@@ -171,6 +171,7 @@ function switchRoute(route, param = null, updateHash = true) {
     route = 'statistics';
   }
 
+  if (CMSState.currentRoute !== route) CMSState.prevRoute = CMSState.currentRoute;
   CMSState.currentRoute = route;
 
   if (route === 'contract_selection') {
@@ -192,7 +193,9 @@ function switchRoute(route, param = null, updateHash = true) {
   } else if (route === 'nc_template_select') {
     if (updateHash) window.location.hash = `/select-template/${param}`;
   } else if (route === 'nc_details') {
-    if (updateHash) window.location.hash = `/new-contract-details/${param}`;
+    // Coming from the template picker, the picker is replaced so Back does not return to it
+    if (updateHash && window.location.hash.startsWith('#/select-template/')) window.location.replace(`#/new-contract-details/${param}`);
+    else if (updateHash) window.location.hash = `/new-contract-details/${param}`;
   } else if (route === 'nc_doc_editor') {
     if (updateHash) window.location.hash = `/edit-document/${param}`;
   } else if (route === 'import_builder') {
@@ -691,7 +694,7 @@ function resetContractValueFilters() {
   const srvSel = document.getElementById('cvFilterService');
   if (branchSel) branchSel.value = 'Innomick';
   if (deptSel) deptSel.value = 'all';
-  if (srvSel) srvSel.value = 'Service';
+  if (srvSel) srvSel.value = 'all';
 
   CMSState.cvFilterVendor = 'All Vendors';
   const triggerText = document.getElementById('cvSelectedVendorText');
@@ -1322,14 +1325,14 @@ function renderApprovals() {
     `;
   } else if (tab === 'history') {
     const historyList = [
-      { name: "INNO-MID-SVC-2622-2026 Cancellation Request Letter 1790150615710.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
-      { name: "INNO-MID-SVC-2622-2026 Renewal Request Letter 1790150393302.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
-      { name: "INNO-MID-SVC-2622-2026 Request Letter 1790150026266.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
-      { name: "INNO-MID-SVC-2608-2026 Cancellation Request Letter 1790071699650.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
-      { name: "INNO-MID-SVC-2608-2026 Amendment Request Letter 1790071021384.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
-      { name: "INNO-MID-SVC-2608-2026 Request Letter 1790069510896.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
+      { name: "INM-MID-SVC-2622-2026 Cancellation Request Letter 1790150615710.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
+      { name: "INM-MID-SVC-2622-2026 Renewal Request Letter 1790150393302.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
+      { name: "INM-MID-SVC-2622-2026 Request Letter 1790150026266.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-23" },
+      { name: "INM-MID-SVC-2608-2026 Cancellation Request Letter 1790071699650.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
+      { name: "INM-MID-SVC-2608-2026 Amendment Request Letter 1790071021384.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
+      { name: "INM-MID-SVC-2608-2026 Request Letter 1790069510896.docx", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
       { name: "Innomick IT Contract/88555232", type: "Sequential", status: "Approved", progress: "Step 2 of 2", requestedBy: "Arjun Mehta", date: "2026-09-22" },
-      { name: "INNO-ITD-SVC-2598-2026 Amendment Draft 1789834967848.docx", type: "Parallel", status: "Request for Change", progress: "Step 2 of 2", requestedBy: "Omar Siddiqui", date: "2026-09-21" }
+      { name: "INM-ITD-SVC-2598-2026 Amendment Draft 1789834967848.docx", type: "Parallel", status: "Request for Change", progress: "Step 2 of 2", requestedBy: "Omar Siddiqui", date: "2026-09-21" }
     ];
 
     container.innerHTML = `
@@ -1498,7 +1501,7 @@ function switchReviewVersionTab(versionKey) {
         </div>
         <div>
           <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">BUDGET CODE</div>
-          <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-top: 4px;">BC-INNO-2026-IT4</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-top: 4px;">BC-INM-2026-IT4</div>
         </div>
       </div>
     `;

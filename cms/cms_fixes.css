@@ -328,3 +328,163 @@ body.nc-approve-mode #cdRoot .cd-chain { padding-left: 24px; padding-right: 24px
 @media (max-width: 760px) { .xl-ver-grid, .imp-summary, .xl-slots { grid-template-columns: 1fr 1fr; } }
 .mg-no-template { padding: 22px 8px; text-align: center; color: #0f766e; font-size: 13.5px; font-weight: 600; }
 .mg-start-foot .btn-teal-primary:disabled { background: #c9ccd1; border-color: #c9ccd1; color: #fff; cursor: default; }
+
+/* ---- Template editor: sizes read from the live Edit Contract Template page ---- */
+.tpl-ed { margin: -24px -32px -48px; background: #fff; min-height: calc(100vh - 115px); padding-bottom: 48px; }
+.tpl-ed-head { display: flex; align-items: center; gap: 12px; margin: 0; padding: 10px 20px; min-height: 69px; box-sizing: border-box; background: #f5f7fa; border-bottom: 1px solid #ddd; }
+.tpl-ed-head h2 { font-size: 24px; font-weight: 700; color: #404189; margin: 0; flex: 1; }
+.tpl-ed-back { background: none; border: none; font-size: 30px; line-height: 1; color: #404189; cursor: pointer; padding: 0 8px; }
+.tpl-ed-save { background: #007884 !important; border-radius: 4px !important; font-size: 14px !important; font-weight: 400 !important; padding: 8px 16px !important; display: inline-flex; align-items: center; gap: 8px; }
+.tpl-ed-save span { font-size: 20px; line-height: 1; }
+.tpl-ed-form { max-width: 959px; margin: 48px auto; padding: 0 16px; box-sizing: border-box; }
+.tpl-ed-form .tpl-type-caption { font-size: 15px; margin: 0 0 16px; }
+.tpl-ed-name-row { display: grid; grid-template-columns: 286px 1fr; align-items: center; }
+.tpl-ed-name-row label { font-size: 15px; font-weight: 500; color: #333; }
+.tpl-ed-name { height: 40px; border: 1px solid #ddd; border-radius: 4px; padding: 0 8px; font-size: 14px; color: #000; width: 100%; box-sizing: border-box; }
+.tpl-ed-upload-label { font-size: 16px; color: #323130; padding: 8px 0; }
+.tpl-ed .tpl-file-chip { max-width: none; display: flex; align-items: center; gap: 12px; min-height: 65px; box-sizing: border-box; background: #e6f2f3; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; }
+.tpl-file-icon { font-size: 20px; color: #2b6cb0; }
+.tpl-file-text { flex: 1; display: flex; flex-direction: column; }
+.tpl-file-text strong { font-size: 14px; font-weight: 600; color: #212529; }
+.tpl-ed .tpl-file-text em { margin: 0; font-size: 12.25px; color: rgba(33, 37, 41, 0.75); font-style: normal; }
+.tpl-ed .tpl-drop { max-width: none; margin-bottom: 24px; }
+.tpl-ed .tpl-ed-card { margin: 0 16px; padding: 0; border: none; border-radius: 16px; box-shadow: rgba(0, 0, 0, 0.176) 0 16px 48px; overflow: hidden; }
+.tpl-ed .tpl-ed-card.ap-empty { padding: 18px 48px; }
+.tpl-ed .tpl-map th { background: #fff; color: #323130; font-size: 14px; font-weight: 700; padding: 12.8px 24px 12.8px 48px; border-bottom: 1px solid #e9ecef; }
+.tpl-ed .tpl-map td { font-size: 13px; color: #323130; padding: 12.8px 24px 12.8px 48px; height: 57px; box-sizing: border-box; border-bottom: 1px solid #e9ecef; }
+.tpl-ed .tpl-map tr:last-child td { border-bottom: none; }
+.tpl-ed .tpl-map-field { width: 170px; height: 30px; background: #e9e9e9; border: 1px solid #d3d3d3; border-radius: 5px; padding: 4.4px 8px; color: #666; font-size: 13px; }
+.tpl-ed .tpl-map-ok { font-size: 13px; color: #323130; }
+@media (max-width: 760px) {
+  .tpl-ed { margin: -16px -16px -32px; }
+  .tpl-ed-name-row { grid-template-columns: 1fr; gap: 6px; }
+  .tpl-ed .tpl-map th, .tpl-ed .tpl-map td { padding-left: 16px; }
+}
+
+/* ---- Template document viewer: laid out like the Word Online frame on the live page ---- */
+.cms-shell-layout:has(#view-template-viewer[style*="display: block"]) > .cms-sidebar { display: none; }
+.cms-content-viewport:has(> #view-template-viewer[style*="display: block"]) { padding: 12px 18px 12px; }
+.wo-back { margin: 0 0 10px; }
+.wo-frame { display: flex; flex-direction: column; height: calc(100vh - 185px); min-height: 480px; border: 1px solid #e1dfdd; background: #faf9f8; font-family: 'Segoe UI', sans-serif; color: #242424; }
+.wo-top { display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 14px; background: #fff; }
+.wo-waffle, .wo-gear, .wo-saved { color: #424242; display: inline-flex; }
+.wo-saved { color: #0e7a0d; }
+.wo-word-icon { width: 22px; height: 22px; border-radius: 3px; background: #185abd; color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-left: 14px; }
+.wo-file { font-size: 14px; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wo-search { margin: 0 auto; width: min(510px, 36vw); height: 32px; border-radius: 4px; background: #f5f5f5; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #616161; font-size: 14px; white-space: nowrap; overflow: hidden; }
+.wo-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #616161; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; margin-left: 14px; }
+.wo-menu { display: flex; align-items: center; gap: 22px; height: 40px; padding: 0 22px; background: #fff; font-size: 14px; }
+.wo-menu > span { cursor: default; padding: 8px 0; }
+.wo-menu > span.active { font-weight: 600; border-bottom: 2px solid #185abd; }
+.wo-menu-right { margin-left: auto; display: flex; gap: 10px; }
+.wo-pill, .wo-share { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid #d1d1d1; border-radius: 4px; font-size: 13px; background: #fff; }
+.wo-share { background: #0f6cbd; border-color: #0f6cbd; color: #fff; }
+.wo-caret { font-size: 11px; line-height: 0; margin-left: 2px; }
+.wo-ribbon { display: flex; align-items: center; gap: 4px; margin: 6px 12px; padding: 6px 10px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14); overflow: hidden; white-space: nowrap; }
+.wo-tool { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; color: #424242; font-size: 15px; }
+.wo-txt b, .wo-txt i, .wo-txt u { font-family: 'Segoe UI', sans-serif; }
+.wo-color { border-bottom: 3px solid #c50f1f; height: 22px; }
+.wo-sep { width: 1px; height: 22px; background: #e0e0e0; margin: 0 4px; }
+.wo-box { display: inline-flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 6px; border: 1px solid #c7c7c7; border-radius: 3px; font-size: 13px; }
+.wo-font { width: 120px; }
+.wo-size { width: 52px; }
+.wo-style { width: 130px; }
+.wo-editor { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #424242; padding: 0 6px; }
+.wo-canvas { position: relative; flex: 1; overflow: auto; padding: 18px 0 30px; }
+.wo-pane { position: absolute; left: 12px; top: 18px; width: 40px; height: 40px; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); display: inline-flex; align-items: center; justify-content: center; color: #424242; }
+.wo-page { width: 816px; max-width: calc(100% - 140px); min-height: 1056px; margin: 0 auto; background: #fff; border: 1px solid #e1dfdd; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02); padding: 60px 70px; box-sizing: border-box; }
+.wo-status { display: flex; align-items: center; gap: 20px; height: 26px; padding: 0 16px; background: #fff; border-top: 1px solid #e1dfdd; font-size: 12px; color: #424242; white-space: nowrap; overflow: hidden; }
+.wo-status-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.wo-zoom { width: 110px; height: 2px; background: #8a8a8a; position: relative; }
+.wo-zoom span { position: absolute; left: 30%; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid #0f6cbd; }
+@media (max-width: 900px) {
+  .wo-search, .wo-menu-right, .wo-status span:nth-child(n+4) { display: none; }
+  .wo-page { max-width: calc(100% - 24px); padding: 24px 18px; min-height: 0; }
+  .wo-pane { display: none; }
+}
+
+/* ---- Template save alert, like the live "Every Fields Should be Created and Mapped." popup ---- */
+.tpl-alert-box { width: 560px; max-width: calc(100vw - 32px); padding: 0; border-radius: 6px; overflow: hidden; }
+.tpl-alert-head { display: flex; justify-content: flex-end; padding: 14px 18px; border-bottom: 1px solid #e5e7eb; }
+.tpl-alert-x { background: none; border: none; color: #007884; font-size: 18px; cursor: pointer; }
+.tpl-alert-msg { padding: 44px 40px; text-align: center; color: #d13438; font-size: 26px; font-weight: 500; line-height: 1.4; }
+.tpl-alert-foot { display: flex; justify-content: flex-end; padding: 14px 18px; border-top: 1px solid #e5e7eb; }
+.tpl-alert-ok { background: #fff; border: 1px solid #c8c6c4; border-radius: 4px; padding: 8px 34px; color: #007884; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+/* ---- Create New Field popup, laid out like the live one ---- */
+.nf-box { width: 1280px; max-width: 92vw; padding: 0; border-radius: 6px; overflow: hidden; }
+.nf-box .modal-header { padding: 22px 18px; border-bottom: 1px solid #e5e7eb; margin: 0; }
+.nf-box .modal-title { color: #007884; font-size: 22px; font-weight: 600; }
+.nf-box .btn-close-modal { color: #007884; font-size: 26px; }
+.nf-box .nf-body { padding: 18px 18px 60px; gap: 4px; }
+.nf-box .nf-row { grid-template-columns: 430px 1fr; gap: 0; font-size: 15px; }
+.nf-box .nf-row > label { font-weight: 600; color: #323130; letter-spacing: .2px; }
+.nf-box .nf-row .cms-input, .nf-box .nf-row .cms-select { height: 58px; border: 1px solid #e1e1e1; border-radius: 2px; font-size: 15px; padding: 0 18px; }
+.nf-box #tplNfName { background: #e9e9e9; color: #444; }
+.nf-box .nf-check { display: inline-flex; align-items: center; gap: 18px; font-weight: 600; padding: 16px 8px; }
+.nf-box .nf-check input { width: 26px; height: 26px; }
+.nf-box .modal-footer { padding: 18px; border-top: 1px solid #e5e7eb; }
+.nf-box .modal-footer .btn-outline-teal { min-width: 108px; color: #007884; border-color: #c8c6c4; }
+.nf-box .modal-footer .btn-teal-primary { min-width: 108px; background: #007884; }
+@media (max-width: 760px) { .nf-box .nf-row { grid-template-columns: 1fr; gap: 6px; } }
+
+/* ---- Contract Request Details: sizes read from the live page ---- */
+#view-nc-details .detail-form-grid-3col { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(24px, 5%, 112px); row-gap: 22px; padding: 20px 90px 0; margin-bottom: 28px; }
+#view-nc-details .detail-form-grid-3col .detail-field-box { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 0; }
+#view-nc-details .detail-form-grid-3col .detail-field-label { flex: 0 0 133px; font-size: 13.5px; font-weight: 600; color: #475569; margin: 0; }
+#view-nc-details .detail-form-grid-3col .detail-field-input { flex: 1; min-width: 0; height: 42px; border: 1px solid #e3e8ef; border-radius: 9px; padding: 0 13.6px; font-size: 14px; color: #1f2937; box-sizing: border-box; }
+#view-nc-details .detail-form-grid-3col .nc-readonly-value { flex: 1; font-size: 14.5px; font-weight: 600; color: #000; padding: 0 13.6px; }
+#view-nc-details .detail-subtabs-bar { padding-left: 8px; border-bottom: 1px solid #e6e8eb; }
+#view-nc-details .detail-subtab-btn { font-size: 14px; font-weight: 500; color: #64748b; padding: 9.6px 20px; border-radius: 10px 10px 0 0; border-bottom: 2.7px solid transparent; background: none; }
+#view-nc-details .detail-subtab-btn.active { color: #007884; font-weight: 600; background: #e6f3f4; border-bottom-color: #007884; }
+#view-nc-details #ncPanelDetail { padding: 24px 90px 0; }
+#view-nc-details #ncDescription { min-height: 89px; border: 1px solid #e3e8ef; border-radius: 9px; padding: 11.2px 14.4px; font-size: 14px; color: #1f2937; }
+@media (max-width: 900px) {
+  #view-nc-details .detail-form-grid-3col { grid-template-columns: 1fr; padding: 16px 16px 0; }
+  #view-nc-details .detail-form-grid-3col .detail-field-box { flex-wrap: wrap; }
+  #view-nc-details #ncPanelDetail { padding: 16px 16px 0; }
+}
+#view-nc-details .detail-form-grid-3col .detail-field-input, #view-nc-details #ncDescription { background: #fff; font-family: inherit; }
+
+/* ---- Shell colours and side menu, read from the live site ---- */
+.m365-topbar { background: #007884 !important; }
+.cms-sidebar { background: #1a8590 !important; }
+.cms-nav-link { padding: 11px 20px !important; font-size: 13.5px !important; font-weight: 400 !important; color: rgba(255, 255, 255, 0.82) !important; border-left: none !important; gap: 10px; min-height: 42px; box-sizing: border-box; }
+.cms-nav-link.active { font-weight: 600 !important; color: #fff !important; background: rgba(255, 255, 255, 0.18) !important; }
+.cms-nav-link .cms-nav-icon svg { width: 16px; height: 16px; }
+.request-card-title { font-size: 16px !important; font-weight: 600 !important; color: #212529 !important; }
+.request-card-icon, .request-card-icon svg { color: #007884 !important; width: 30px !important; height: 30px !important; }
+.request-action-card { min-height: 106px; }
+
+/* ---- Approvals lists, read from the live page ---- */
+#view-approvals .approvals-sp-table td { font-size: 14px; padding: 12.8px; height: 60px; box-sizing: border-box; }
+#view-approvals .approvals-sp-table td > div[style*="font-weight: 600"], #view-approvals .approvals-sp-table td b { font-weight: 400 !important; color: #000 !important; font-size: 14px; }
+#view-approvals .badge-sequential, #view-approvals .badge-parallel { display: inline-block; font-size: 14px; font-weight: 400; color: #000; border-radius: 30px; padding: 3.2px 12.8px; }
+#view-approvals .badge-sequential { background: #add8e6; }
+#view-approvals .badge-parallel { background: #90ee90; }
+#view-approvals .at-card-text, #view-approvals .at-card-text b, #view-approvals .at-card-text strong { font-weight: 400 !important; font-size: 13px; color: #323130; }
+
+/* ---- Contract Template cards, read from the live page ---- */
+.templates-grid-sp { grid-template-columns: repeat(auto-fill, 200px) !important; gap: 16px !important; }
+.template-pill-card { height: 80px; box-sizing: border-box; border: none !important; border-radius: 17px !important; box-shadow: none !important; padding: 12.8px 16px !important; background: linear-gradient(90deg, #d2e8ea, #fff) !important; color: #007884; }
+.template-pill-card, .template-pill-card span, .template-pill-card div { font-size: 14px; font-weight: 500 !important; color: #007884; }
+.template-pill-card .template-pill-icon { width: 28px !important; height: 32px !important; padding: 0 !important; background: none !important; color: #007884 !important; stroke: #007884; border-radius: 0 !important; }
+#view-nc-details textarea, #view-import-builder textarea, #view-mg-detail textarea { font-family: inherit !important; }
+
+/* ---- "Reviewing" note shown when a request document opens, as on the live site ---- */
+.wv-canvas { position: relative; }
+.wv-review-note { position: absolute; top: 8px; right: 14px; width: 340px; background: #fff; border-radius: 6px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22); padding: 18px 22px 16px; z-index: 2; font-family: 'Segoe UI', sans-serif; }
+.wv-review-note b { font-size: 22px; font-weight: 600; color: #242424; }
+.wv-review-note p { font-size: 15px; color: #424242; line-height: 1.5; margin: 12px 0 16px; }
+.wv-review-note button { display: block; margin-left: auto; background: #fff; border: 2px solid #0f6cbd; border-radius: 4px; padding: 5px 24px; font-size: 15px; font-weight: 600; color: #242424; cursor: pointer; }
+
+/* ---- Approval status view (opened from a request), as on the live view-approval page ---- */
+.ap-comments-sub { font-size: 13px; color: #475569; line-height: 1.5; margin: 6px 0 24px; }
+.ap-history-none { font-size: 13px; color: #334155; margin: 8px 0 24px; }
+.ap-history-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; border-bottom: 1px solid #eef2f7; font-size: 13px; }
+.ap-history-row small { color: #64748b; grid-column: 1 / -1; }
+.ap-history-row div { grid-column: 1 / -1; color: #334155; }
+
+/* ---- Small popups with a styled dropdown: the open list floats over the popup (as on the live site) instead of being clipped ---- */
+#newContractModal .modal-box, #impManualModal .modal-box, #createTemplateModal .modal-box { overflow: visible; max-height: none; }
+#newContractModal .ui-dd-menu, #impManualModal .ui-dd-menu, #createTemplateModal .ui-dd-menu { max-height: 260px; overflow-y: auto; }
